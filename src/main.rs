@@ -1,3 +1,8 @@
+extern crate clap;
+
+mod cli;
+
 fn main() {
-    println!("Hello, world!");
+    // Parse cli arguments and parameters
+    let matches = cli::generate_cli().get_matches();
 }

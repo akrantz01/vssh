@@ -1,6 +1,6 @@
 use crate::errors::ConfigError;
-use serde::{Serialize, Deserialize};
-use std::fs::{OpenOptions, read_to_string};
+use serde::{Deserialize, Serialize};
+use std::fs::{read_to_string, OpenOptions};
 use std::io::prelude::*;
 use std::path::Path;
 use url::Url;
@@ -16,7 +16,13 @@ pub struct Config {
 
 impl Config {
     /// Initializes a new configuration with the provided values.
-    pub fn new(server: String, token: String, default_key: String, path: String, tls: bool) -> Self {
+    pub fn new(
+        server: String,
+        token: String,
+        default_key: String,
+        path: String,
+        tls: bool,
+    ) -> Self {
         Config {
             server,
             token,
@@ -28,7 +34,13 @@ impl Config {
 
     /// Initializes an empty configuration structure
     pub fn new_empty() -> Self {
-        Config::new(String::from(""), String::from(""), String::from(""), String::from(""), false)
+        Config::new(
+            String::from(""),
+            String::from(""),
+            String::from(""),
+            String::from(""),
+            false,
+        )
     }
 
     /// Read the default configuration file.
@@ -36,7 +48,12 @@ impl Config {
     pub fn read_default() -> Result<Self, ConfigError> {
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
         home.push(".config/vssh.yml");
-        Config::read(home.as_path().to_str().expect("Failed to convert path to string").to_string())
+        Config::read(
+            home.as_path()
+                .to_str()
+                .expect("Failed to convert path to string")
+                .to_string(),
+        )
     }
 
     /// Read the specified configuration file.
@@ -63,7 +80,7 @@ impl Config {
             .write(true)
             .create(true)
             .open(home.as_path())?;
-        
+
         file.write_all(encoded.as_bytes())?;
         Ok(())
     }
@@ -72,7 +89,7 @@ impl Config {
     pub fn validate(&self) -> Result<(), ConfigError> {
         // Validate URL
         match Url::parse(self.server.as_str()) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
                 return Err(ConfigError::InvalidUrl(e));
             }

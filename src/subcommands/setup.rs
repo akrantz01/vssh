@@ -4,7 +4,10 @@ use std::process::exit;
 
 pub fn interactive() {
     // Get the server address
-    let server = prompt_default("What server should vssh connect to?", String::from("https://127.0.0.1:8200"));
+    let server = prompt_default(
+        "What server should vssh connect to?",
+        String::from("https://127.0.0.1:8200"),
+    );
 
     // Determine whether TLS should be used
     let tls = prompt_bool("Should TLS be use to connect to he server?", true);
@@ -13,17 +16,23 @@ pub fn interactive() {
     let token = prompt("What token to vssh authenticated to the server with?");
 
     // Get the path for the SSH secret engine
-    let path = prompt_default("What path is the SSH CA located at on the server?", String::from("ssh-ca"));
+    let path = prompt_default(
+        "What path is the SSH CA located at on the server?",
+        String::from("ssh-ca"),
+    );
 
     // Get the default key to sign
     let mut home = dirs::home_dir().expect("Failed to retrieve home directory");
     home.push(".ssh/id_rsa");
-    let default_key = prompt_default("What should the default key to sign be?", format!("{}", home.as_path().display()));
+    let default_key = prompt_default(
+        "What should the default key to sign be?",
+        format!("{}", home.as_path().display()),
+    );
 
     // Ensure the configuration is valid
     let config = Config::new(server, token, default_key, path, tls);
     match config.validate() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("Invalid configuration: {}", e);
             exit(1);
@@ -33,7 +42,7 @@ pub fn interactive() {
     // Write the configuration to disk
     match config.write() {
         Ok(_) => println!("Successfully configured!"),
-        Err(e) => println!("Error configuring: {}", e)
+        Err(e) => println!("Error configuring: {}", e),
     }
 }
 
@@ -54,9 +63,15 @@ pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, key: &'a s
     }
 
     // Ensure the configuration is valid
-    let config = Config::new(String::from(server), String::from(token), String::from(key), String::from(path), tls);
+    let config = Config::new(
+        String::from(server),
+        String::from(token),
+        String::from(key),
+        String::from(path),
+        tls,
+    );
     match config.validate() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("Invalid configuration: {}", e);
             exit(1);
@@ -66,7 +81,7 @@ pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, key: &'a s
     // Write the configuration to disk
     match config.write() {
         Ok(_) => println!("Successfully configured"),
-        Err(e) => println!("Error configuring: {}", e)
+        Err(e) => println!("Error configuring: {}", e),
     }
 }
 
@@ -124,6 +139,9 @@ fn prompt_bool(prompt: &'static str, default: bool) -> bool {
 /// Read a line from stdin
 fn read_line() -> String {
     let mut line = String::new();
-    io::stdin().lock().read_line(&mut line).expect("Failed to read from stdin");
+    io::stdin()
+        .lock()
+        .read_line(&mut line)
+        .expect("Failed to read from stdin");
     line.trim().to_string()
 }

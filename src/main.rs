@@ -26,21 +26,19 @@ fn main() {
     // Ensure exists
     let cfg = match cfg_result {
         Ok(c) => c,
-        Err(e) => {
-            match e {
-                errors::ConfigError::NonExistentConfigFile => {
-                    if matches.subcommand_name().unwrap_or_default() != "setup" {
-                        println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
-                        exit(1);
-                    }
-                    Config::new_empty()
-                }
-                _ => {
-                    println!("Failed to load configuration: {}", e);
+        Err(e) => match e {
+            errors::ConfigError::NonExistentConfigFile => {
+                if matches.subcommand_name().unwrap_or_default() != "setup" {
+                    println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
                     exit(1);
                 }
+                Config::new_empty()
             }
-        }
+            _ => {
+                println!("Failed to load configuration: {}", e);
+                exit(1);
+            }
+        },
     };
 
     // Handle the setup subcommand

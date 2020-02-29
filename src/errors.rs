@@ -8,7 +8,7 @@ pub enum ConfigError {
     InvalidDefaultKey,
     NonExistentConfigFile,
     ReadError(io::Error),
-    YamlError(serde_yaml::Error)
+    YamlError(serde_yaml::Error),
 }
 
 impl fmt::Display for ConfigError {
@@ -19,7 +19,7 @@ impl fmt::Display for ConfigError {
             ConfigError::InvalidDefaultKey => write!(f, "Invalid default key"),
             ConfigError::NonExistentConfigFile => write!(f, "Configuration file does not exist"),
             ConfigError::ReadError(e) => write!(f, "Failed to read from file: {}", e),
-            ConfigError::YamlError(e) => write!(f, "Failed to decode YAML: {}", e)
+            ConfigError::YamlError(e) => write!(f, "Failed to decode YAML: {}", e),
         }
     }
 }

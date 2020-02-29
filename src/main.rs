@@ -6,11 +6,42 @@ extern crate url;
 
 mod cli;
 mod config;
+mod errors;
 mod subcommands;
+
+use config::Config;
+use std::process::exit;
 
 fn main() {
     // Parse cli arguments and parameters
     let matches = cli::generate_cli().get_matches();
+
+    // Attempt to read config file
+    let cfg_result = if matches.value_of("config").unwrap_or_default() == "" {
+        Config::read_default()
+    } else {
+        Config::read(matches.value_of("config").unwrap().to_string())
+    };
+
+    // Ensure exists
+    let cfg = match cfg_result {
+        Ok(c) => c,
+        Err(e) => {
+            match e {
+                errors::ConfigError::NonExistentConfigFile => {
+                    if matches.subcommand_name().unwrap_or_default() != "setup" {
+                        println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
+                        exit(1);
+                    }
+                    Config::new_empty()
+                }
+                _ => {
+                    println!("Failed to load configuration: {}", e);
+                    exit(1);
+                }
+            }
+        }
+    };
 
     // Handle the setup subcommand
     if let Some(setup) = matches.subcommand_matches("setup") {

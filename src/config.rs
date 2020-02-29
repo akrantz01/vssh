@@ -1,27 +1,11 @@
+use crate::errors::ConfigError;
 use serde::{Serialize, Deserialize};
 use std::fs::{OpenOptions, read_to_string};
 use std::io::prelude::*;
-use std::fmt;
 use std::path::Path;
-use url::{Url, ParseError};
+use url::Url;
 
-pub enum Error {
-    InvalidUrl(ParseError),
-    NoToken,
-    NoKey,
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Error::InvalidUrl(e) => write!(f, "Invalid URL: {}", e),
-            Error::NoToken => write!(f, "No token provided"),
-            Error::NoKey => write!(f, "Specified key does not exist"),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub server: String,
     pub token: String,
@@ -42,14 +26,25 @@ impl Config {
         }
     }
 
+    /// Initializes an empty configuration structure
+    pub fn new_empty() -> Self {
+        Config::new(String::from(""), String::from(""), String::from(""), String::from(""), false)
+    }
+
     /// Read the default configuration file.
     /// This is stored at `$HOME/.config/vssh.yml`
-    pub fn read_default() -> Result<Self, Box<dyn std::error::Error + 'static>> {
-        Config::read(String::from("~/.config/vssh.yml"))
+    pub fn read_default() -> Result<Self, ConfigError> {
+        let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
+        home.push(".config/vssh.yml");
+        Config::read(home.as_path().to_str().expect("Failed to convert path to string").to_string())
     }
 
     /// Read the specified configuration file.
-    pub fn read(path: String) -> Result<Self, Box<dyn std::error::Error + 'static>> {
+    pub fn read(path: String) -> Result<Self, ConfigError> {
+        if !Path::new(&path).exists() {
+            return Err(ConfigError::NonExistentConfigFile);
+        }
+
         let raw: String = read_to_string(path)?;
         let config: Config = serde_yaml::from_str(&raw)?;
         Ok(config)
@@ -57,7 +52,7 @@ impl Config {
 
     /// Write the currently stored configuration to the default location.
     /// The configuration is stored as YAML.
-    pub fn write(&self) -> Result<(), Box<dyn std::error::Error + 'static>> {
+    pub fn write(&self) -> Result<(), ConfigError> {
         let encoded = serde_yaml::to_string(self)?;
 
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
@@ -74,23 +69,23 @@ impl Config {
     }
 
     /// Validate the configuration
-    pub fn validate(&self) -> Result<(), Error> {
+    pub fn validate(&self) -> Result<(), ConfigError> {
         // Validate URL
         match Url::parse(self.server.as_str()) {
             Ok(_) => {},
             Err(e) => {
-                return Err(Error::InvalidUrl(e));
+                return Err(ConfigError::InvalidUrl(e));
             }
         };
 
         // Ensure non-empty token
         if self.token == "" {
-            return Err(Error::NoToken);
+            return Err(ConfigError::InvalidToken);
         }
 
         // Ensure key exists
         if !Path::new(&self.default_key).exists() {
-            return Err(Error::NoKey);
+            return Err(ConfigError::InvalidDefaultKey);
         }
 
         Ok(())

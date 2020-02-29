@@ -1,6 +1,25 @@
 use serde::{Serialize, Deserialize};
 use std::fs::{OpenOptions, read_to_string};
 use std::io::prelude::*;
+use std::fmt;
+use std::path::Path;
+use url::{Url, ParseError};
+
+pub enum Error {
+    InvalidUrl(ParseError),
+    NoToken,
+    NoKey,
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Error::InvalidUrl(e) => write!(f, "Invalid URL: {}", e),
+            Error::NoToken => write!(f, "No token provided"),
+            Error::NoKey => write!(f, "Specified key does not exist"),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Config {
@@ -51,6 +70,29 @@ impl Config {
             .open(home.as_path())?;
         
         file.write_all(encoded.as_bytes())?;
+        Ok(())
+    }
+
+    /// Validate the configuration
+    pub fn validate(&self) -> Result<(), Error> {
+        // Validate URL
+        match Url::parse(self.server.as_str()) {
+            Ok(_) => {},
+            Err(e) => {
+                return Err(Error::InvalidUrl(e));
+            }
+        };
+
+        // Ensure non-empty token
+        if self.token == "" {
+            return Err(Error::NoToken);
+        }
+
+        // Ensure key exists
+        if !Path::new(&self.default_key).exists() {
+            return Err(Error::NoKey);
+        }
+
         Ok(())
     }
 }

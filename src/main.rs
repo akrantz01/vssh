@@ -2,6 +2,7 @@ extern crate clap;
 extern crate dirs;
 extern crate serde;
 extern crate serde_yaml;
+extern crate url;
 
 mod cli;
 mod config;

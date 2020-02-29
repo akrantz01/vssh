@@ -1,6 +1,10 @@
 extern crate clap;
+extern crate dirs;
+extern crate serde;
+extern crate serde_yaml;
 
 mod cli;
+mod config;
 mod subcommands;
 
 fn main() {

@@ -14,8 +14,8 @@ mod subcommands;
 
 use api::ApiClient;
 use config::Config;
-use std::process::exit;
 use std::io;
+use std::process::exit;
 
 fn main() {
     // Parse cli arguments and parameters
@@ -55,7 +55,7 @@ fn main() {
                 !setup.is_present("no-tls"),
                 setup.value_of("token").unwrap_or_default(),
                 setup.value_of("path").unwrap_or_default(),
-                setup.value_of("custom-ca").unwrap_or_default()
+                setup.value_of("custom-ca").unwrap_or_default(),
             )
         } else {
             subcommands::setup::interactive();
@@ -70,7 +70,7 @@ fn main() {
                 println!("Invalid token, please ensure it is correct and try again");
                 exit(1);
             }
-        },
+        }
         Err(e) => {
             println!("Failed to validate token: {}", e);
             exit(1);
@@ -80,18 +80,35 @@ fn main() {
     // Handle other/non-existent subcommands
     match matches.subcommand_name() {
         None => {
-            cli::generate_cli().write_help(&mut io::stdout()).expect("Failed to write help");
+            cli::generate_cli()
+                .write_help(&mut io::stdout())
+                .expect("Failed to write help");
             println!();
-        },
+        }
         Some(name) => match name {
             "list" => subcommands::list::list(&client),
-            "sign" => if let Some(sign) = matches.subcommand_matches("sign") {
-                subcommands::sign::sign(&client, sign.value_of("ROLE").unwrap_or_default(), sign.value_of("KEY").unwrap_or_default(), sign.value_of("output").unwrap_or_default());
-            },
-            "connect" => if let Some(connect) = matches.subcommand_matches("connect") {
-                subcommands::connect::connect(&client, connect.value_of("ROLE").unwrap_or_default(), connect.value_of("KEY").unwrap_or_default(), connect.value_of("SERVER").unwrap_or_default(), connect.value_of("options").unwrap_or_default());
+            "sign" => {
+                if let Some(sign) = matches.subcommand_matches("sign") {
+                    subcommands::sign::sign(
+                        &client,
+                        sign.value_of("ROLE").unwrap_or_default(),
+                        sign.value_of("KEY").unwrap_or_default(),
+                        sign.value_of("output").unwrap_or_default(),
+                    );
+                }
+            }
+            "connect" => {
+                if let Some(connect) = matches.subcommand_matches("connect") {
+                    subcommands::connect::connect(
+                        &client,
+                        connect.value_of("ROLE").unwrap_or_default(),
+                        connect.value_of("KEY").unwrap_or_default(),
+                        connect.value_of("SERVER").unwrap_or_default(),
+                        connect.value_of("options").unwrap_or_default(),
+                    );
+                }
             }
             _ => {}
-        }
+        },
     }
 }

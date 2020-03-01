@@ -1,7 +1,7 @@
 use crate::errors::ConfigError;
 use reqwest::Certificate;
 use serde::{Deserialize, Serialize};
-use std::fs::{File, read_to_string, OpenOptions};
+use std::fs::{read_to_string, File, OpenOptions};
 use std::io::prelude::*;
 use std::path::Path;
 use url::Url;
@@ -17,13 +17,7 @@ pub struct Config {
 
 impl Config {
     /// Initializes a new configuration with the provided values.
-    pub fn new(
-        server: String,
-        token: String,
-        path: String,
-        custom_ca: String,
-        tls: bool,
-    ) -> Self {
+    pub fn new(server: String, token: String, path: String, custom_ca: String, tls: bool) -> Self {
         Config {
             server,
             token,

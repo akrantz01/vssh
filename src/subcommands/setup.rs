@@ -11,7 +11,7 @@ pub fn interactive() {
 
     // Check if using HTTPS
     let using_https = prompt_bool("Are you using HTTPS to connect to the server?", true);
-    
+
     // Options only for those using HTTPS
     let custom_ca: String;
     let tls = if using_https {
@@ -55,7 +55,13 @@ pub fn interactive() {
     }
 }
 
-pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, path: &'a str, custom_ca: &'a str) {
+pub fn noninteractive<'a>(
+    server: &'a str,
+    tls: bool,
+    token: &'a str,
+    path: &'a str,
+    custom_ca: &'a str,
+) {
     // Ensure each parameter exists
     if server == "" {
         println!("Option '--server' is required when running non-interactively");

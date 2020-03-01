@@ -1,5 +1,5 @@
 use crate::api::ApiClient;
-use std::fs::{canonicalize, OpenOptions, read_to_string};
+use std::fs::{canonicalize, read_to_string, OpenOptions};
 use std::io::{ErrorKind, Write};
 use std::process::exit;
 
@@ -10,7 +10,7 @@ pub fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str
         Err(e) => {
             match e.kind() {
                 ErrorKind::NotFound => println!("Key '{}' does not exist", key),
-                _ => println!("Failed to convert relative to absolute path: {}", e)
+                _ => println!("Failed to convert relative to absolute path: {}", e),
             }
             exit(1);
         }
@@ -44,8 +44,10 @@ pub fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str
         Ok(file) => file,
         Err(e) => {
             match e.kind() {
-                ErrorKind::PermissionDenied => println!("Cannot write signed public key: permission denied"),
-                _ => println!("Failed to open output file: {}", e)
+                ErrorKind::PermissionDenied => {
+                    println!("Cannot write signed public key: permission denied")
+                }
+                _ => println!("Failed to open output file: {}", e),
             };
             exit(1);
         }
@@ -53,7 +55,7 @@ pub fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str
 
     // Write to file
     match file.write_all(signed.as_bytes()) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("Failed to write to output file: {}", e);
             exit(1);

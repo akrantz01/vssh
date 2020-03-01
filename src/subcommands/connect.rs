@@ -1,19 +1,25 @@
 use crate::api::ApiClient;
-use rand::{Rng, thread_rng};
 use rand::distributions::Alphanumeric;
-use std::fs::{canonicalize, OpenOptions, read_to_string, remove_file};
+use rand::{thread_rng, Rng};
+use std::fs::{canonicalize, read_to_string, remove_file, OpenOptions};
 use std::io::{ErrorKind, Write};
 use std::iter;
-use std::process::{Command, exit};
+use std::process::{exit, Command};
 
-pub fn connect<'a>(client: &ApiClient, role: &'a str, key: &'a str, server: &'a str, options: &'a str) {
+pub fn connect<'a>(
+    client: &ApiClient,
+    role: &'a str,
+    key: &'a str,
+    server: &'a str,
+    options: &'a str,
+) {
     // Convert relative to absolute path and ensure exists
     let path = match canonicalize(key) {
         Ok(path) => path,
         Err(e) => {
             match e.kind() {
                 ErrorKind::NotFound => println!("Private key '{}' does not exist", key),
-                _ => println!("Failed to convert relative to absolute path: {}", e)
+                _ => println!("Failed to convert relative to absolute path: {}", e),
             }
             exit(1);
         }
@@ -23,7 +29,11 @@ pub fn connect<'a>(client: &ApiClient, role: &'a str, key: &'a str, server: &'a 
     let contents = match read_to_string(format!("{}.pub", path.as_path().to_str().unwrap())) {
         Ok(contents) => contents,
         Err(e) => {
-            println!("Failed to read public key '{}': {}", path.as_path().to_str().unwrap(), e);
+            println!(
+                "Failed to read public key '{}': {}",
+                path.as_path().to_str().unwrap(),
+                e
+            );
             exit(1);
         }
     };
@@ -39,12 +49,18 @@ pub fn connect<'a>(client: &ApiClient, role: &'a str, key: &'a str, server: &'a 
 
     // Create output file
     let name = random_string(16);
-    let mut file = match OpenOptions::new().write(true).create(true).open(format!("/tmp/{}", name)) {
+    let mut file = match OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(format!("/tmp/{}", name))
+    {
         Ok(file) => file,
         Err(e) => {
             match e.kind() {
-                ErrorKind::PermissionDenied => println!("Cannot write signed public key: permission denied"),
-                _ => println!("Failed to open output file: {}", e)
+                ErrorKind::PermissionDenied => {
+                    println!("Cannot write signed public key: permission denied")
+                }
+                _ => println!("Failed to open output file: {}", e),
             };
             exit(1);
         }
@@ -52,7 +68,7 @@ pub fn connect<'a>(client: &ApiClient, role: &'a str, key: &'a str, server: &'a 
 
     // Write to file
     match file.write_all(signed.as_bytes()) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("Failed to write to output file: {}", e);
             exit(1);
@@ -60,7 +76,15 @@ pub fn connect<'a>(client: &ApiClient, role: &'a str, key: &'a str, server: &'a 
     }
 
     // Run command
-    let mut child = match Command::new("ssh").arg("-i").arg(key).arg("-i").arg(format!("/tmp/{}", name)).arg(server).args(options.split_whitespace().collect::<Vec<&str>>()).spawn() {
+    let mut child = match Command::new("ssh")
+        .arg("-i")
+        .arg(key)
+        .arg("-i")
+        .arg(format!("/tmp/{}", name))
+        .arg(server)
+        .args(options.split_whitespace().collect::<Vec<&str>>())
+        .spawn()
+    {
         Ok(child) => child,
         Err(e) => {
             println!("Failed to start ssh command: {}", e);
@@ -73,11 +97,13 @@ pub fn connect<'a>(client: &ApiClient, role: &'a str, key: &'a str, server: &'a 
 
     // Remove signed certificate
     match remove_file(format!("/tmp/{}", name)) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             match e.kind() {
-                ErrorKind::PermissionDenied => println!("Cannot remove signed certificate: permission denied"),
-                _ => println!("Failed to remove signed certificate: {}", e)
+                ErrorKind::PermissionDenied => {
+                    println!("Cannot remove signed certificate: permission denied")
+                }
+                _ => println!("Failed to remove signed certificate: {}", e),
             };
             exit(1);
         }

@@ -14,15 +14,29 @@ impl ApiClient {
     /// Create a HTTP client from the config file
     pub fn from_config(config: Config) -> Self {
         let mut headers = header::HeaderMap::new();
-        headers.insert("X-Vault-Token", header::HeaderValue::from_str(&config.token).expect("Failed to convert to header value"));
+        headers.insert(
+            "X-Vault-Token",
+            header::HeaderValue::from_str(&config.token)
+                .expect("Failed to convert to header value"),
+        );
 
         // Generate custom client
-        let client = Client::builder().default_headers(headers).use_native_tls().danger_accept_invalid_certs(config.tls);
+        let client = Client::builder()
+            .default_headers(headers)
+            .use_native_tls()
+            .danger_accept_invalid_certs(config.tls);
 
         ApiClient {
             address: config.server.clone(),
             client: if config.custom_ca != "" {
-                client.add_root_certificate(config.read_certificate().expect("Failed to read custom certificate")).build().expect("Failed to build API client")
+                client
+                    .add_root_certificate(
+                        config
+                            .read_certificate()
+                            .expect("Failed to read custom certificate"),
+                    )
+                    .build()
+                    .expect("Failed to build API client")
             } else {
                 client.build().expect("Failed to build API client")
             },
@@ -31,7 +45,10 @@ impl ApiClient {
 
     /// Ensure the configuration is valid by getting the token permissions
     pub fn validate(&self) -> Result<bool, reqwest::Error> {
-        let response = self.client.get(&format!("{}/v1/auth/token/lookup-self", self.address).to_string()).send()?;
+        let response = self
+            .client
+            .get(&format!("{}/v1/auth/token/lookup-self", self.address).to_string())
+            .send()?;
         Ok(response.status().is_success())
     }
 
@@ -40,7 +57,9 @@ impl ApiClient {
         let mut body = HashMap::new();
         body.insert("public_key", key);
 
-        let response = self.client.put(&format!("{}/v1/ssh-ca/sign/{}", self.address, role))
+        let response = self
+            .client
+            .put(&format!("{}/v1/ssh-ca/sign/{}", self.address, role))
             .json(&body)
             .send()?;
 
@@ -59,7 +78,13 @@ impl ApiClient {
 
     /// Get a list of roles to sign as
     pub fn list_roles(&self) -> Result<Vec<String>, ApiError> {
-        let response = self.client.request(Method::from_str("LIST").unwrap(), &format!("{}/v1/ssh-ca/roles", self.address)).send()?;
+        let response = self
+            .client
+            .request(
+                Method::from_str("LIST").unwrap(),
+                &format!("{}/v1/ssh-ca/roles", self.address),
+            )
+            .send()?;
 
         let status = response.status();
         if status.is_client_error() {
@@ -91,25 +116,25 @@ impl ApiClient {
 
 #[derive(Deserialize)]
 struct SignResponse {
-    pub data: SignData
+    pub data: SignData,
 }
 
 #[derive(Deserialize)]
 struct SignData {
-    pub signed_key: String
+    pub signed_key: String,
 }
 
 #[derive(Deserialize)]
 struct RolesResponse {
-    pub data: RolesData
+    pub data: RolesData,
 }
 
 #[derive(Deserialize)]
 struct RolesData {
-    pub keys: Vec<String>
+    pub keys: Vec<String>,
 }
 
 #[derive(Deserialize)]
 struct ErrorResponse {
-    pub errors: Vec<String>
+    pub errors: Vec<String>,
 }

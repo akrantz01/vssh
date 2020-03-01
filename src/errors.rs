@@ -8,7 +8,7 @@ pub enum ConfigError {
     NonExistentConfigFile,
     ReadError(io::Error),
     YamlError(serde_yaml::Error),
-    CertificateDecodeError(reqwest::Error)
+    CertificateDecodeError(reqwest::Error),
 }
 
 impl fmt::Display for ConfigError {
@@ -19,7 +19,9 @@ impl fmt::Display for ConfigError {
             ConfigError::NonExistentConfigFile => write!(f, "Configuration file does not exist"),
             ConfigError::ReadError(e) => write!(f, "Failed to read from file: {}", e),
             ConfigError::YamlError(e) => write!(f, "Failed to decode YAML: {}", e),
-            ConfigError::CertificateDecodeError(e) => write!(f, "Failed to decode certificate: {}", e)
+            ConfigError::CertificateDecodeError(e) => {
+                write!(f, "Failed to decode certificate: {}", e)
+            }
         }
     }
 }
@@ -51,7 +53,7 @@ pub enum ApiError {
     UnknownRole,
     InvalidPublicKey,
     SendFailure(reqwest::Error),
-    UnknownError
+    UnknownError,
 }
 
 impl fmt::Display for ApiError {
@@ -62,7 +64,7 @@ impl fmt::Display for ApiError {
             ApiError::UnknownRole => write!(f, "Unknown role"),
             ApiError::InvalidPublicKey => write!(f, "Invalid public key format"),
             ApiError::SendFailure(e) => write!(f, "Failed to send request: {}", e),
-            ApiError::UnknownError => write!(f, "An unknown error occurred")
+            ApiError::UnknownError => write!(f, "An unknown error occurred"),
         }
     }
 }

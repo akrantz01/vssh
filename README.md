@@ -65,4 +65,4 @@ Arguments:
   - [ ] add profiles
   - [x] custom CAs
   - [x] self-signed certificates
-  - [ ] use non-blocking version of `reqwest`
+  - [x] use non-blocking version of `reqwest`

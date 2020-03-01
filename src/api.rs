@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::errors::ApiError;
-use reqwest::{blocking::Client, header, Method};
+use reqwest::{Client, header, Method};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -44,16 +44,16 @@ impl ApiClient {
     }
 
     /// Ensure the configuration is valid by getting the token permissions
-    pub fn validate(&self) -> Result<bool, reqwest::Error> {
+    pub async fn validate(&self) -> Result<bool, reqwest::Error> {
         let response = self
             .client
             .get(&format!("{}/v1/auth/token/lookup-self", self.address).to_string())
-            .send()?;
+            .send().await?;
         Ok(response.status().is_success())
     }
 
     /// Sign a given public key with the specified role
-    pub fn sign(&self, role: String, key: String) -> Result<String, ApiError> {
+    pub async fn sign(&self, role: String, key: String) -> Result<String, ApiError> {
         let mut body = HashMap::new();
         body.insert("public_key", key);
 
@@ -61,39 +61,39 @@ impl ApiClient {
             .client
             .put(&format!("{}/v1/ssh-ca/sign/{}", self.address, role))
             .json(&body)
-            .send()?;
+            .send().await?;
 
         // Ensure successful
         let status = response.status();
         if status.is_client_error() {
-            let error: ErrorResponse = response.json()?;
+            let error: ErrorResponse = response.json().await?;
             Err(self.response_to_error(error))
         } else if status.is_server_error() {
             Err(ApiError::ServerError)
         } else {
-            let signed: SignResponse = response.json()?;
+            let signed: SignResponse = response.json().await?;
             Ok(signed.data.signed_key)
         }
     }
 
     /// Get a list of roles to sign as
-    pub fn list_roles(&self) -> Result<Vec<String>, ApiError> {
+    pub async fn list_roles(&self) -> Result<Vec<String>, ApiError> {
         let response = self
             .client
             .request(
                 Method::from_str("LIST").unwrap(),
                 &format!("{}/v1/ssh-ca/roles", self.address),
             )
-            .send()?;
+            .send().await?;
 
         let status = response.status();
         if status.is_client_error() {
-            let error: ErrorResponse = response.json()?;
+            let error: ErrorResponse = response.json().await?;
             Err(self.response_to_error(error))
         } else if status.is_server_error() {
             Err(ApiError::ServerError)
         } else {
-            let roles: RolesResponse = response.json()?;
+            let roles: RolesResponse = response.json().await?;
             Ok(roles.data.keys)
         }
     }

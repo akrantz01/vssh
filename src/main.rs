@@ -4,6 +4,7 @@ extern crate rand;
 extern crate reqwest;
 extern crate serde;
 extern crate serde_yaml;
+extern crate tokio;
 extern crate url;
 
 mod api;
@@ -17,7 +18,8 @@ use config::Config;
 use std::io;
 use std::process::exit;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // Parse cli arguments and parameters
     let matches = cli::generate_cli().get_matches();
 
@@ -64,7 +66,7 @@ fn main() {
 
     // Initialize API client
     let client = ApiClient::from_config(cfg);
-    match client.validate() {
+    match client.validate().await {
         Ok(status) => {
             if !status {
                 println!("Invalid token, please ensure it is correct and try again");
@@ -86,7 +88,7 @@ fn main() {
             println!();
         }
         Some(name) => match name {
-            "list" => subcommands::list::list(&client),
+            "list" => subcommands::list::list(&client).await,
             "sign" => {
                 if let Some(sign) = matches.subcommand_matches("sign") {
                     subcommands::sign::sign(
@@ -94,7 +96,7 @@ fn main() {
                         sign.value_of("ROLE").unwrap_or_default(),
                         sign.value_of("KEY").unwrap_or_default(),
                         sign.value_of("output").unwrap_or_default(),
-                    );
+                    ).await;
                 }
             }
             "connect" => {
@@ -105,10 +107,10 @@ fn main() {
                         connect.value_of("KEY").unwrap_or_default(),
                         connect.value_of("SERVER").unwrap_or_default(),
                         connect.value_of("options").unwrap_or_default(),
-                    );
+                    ).await;
                 }
             }
             _ => {}
         },
-    }
+    };
 }

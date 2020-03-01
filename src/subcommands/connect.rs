@@ -6,7 +6,7 @@ use std::io::{ErrorKind, Write};
 use std::iter;
 use std::process::{exit, Command};
 
-pub fn connect<'a>(
+pub async fn connect<'a>(
     client: &ApiClient,
     role: &'a str,
     key: &'a str,
@@ -39,7 +39,7 @@ pub fn connect<'a>(
     };
 
     // Sign the public key
-    let signed = match client.sign(role.to_string(), contents) {
+    let signed = match client.sign(role.to_string(), contents).await {
         Ok(signed) => signed,
         Err(e) => {
             println!("Failed to sign public key: {}", e);

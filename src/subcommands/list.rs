@@ -1,9 +1,9 @@
 use crate::api::ApiClient;
 use std::process::exit;
 
-pub fn list(client: &ApiClient) {
+pub async fn list(client: &ApiClient) {
     // Request roles
-    let roles = match client.list_roles() {
+    let roles = match client.list_roles().await {
         Ok(roles) => roles,
         Err(e) => {
             println!("Failed to list roles: {}", e);

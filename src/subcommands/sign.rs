@@ -3,7 +3,7 @@ use std::fs::{canonicalize, read_to_string, OpenOptions};
 use std::io::{ErrorKind, Write};
 use std::process::exit;
 
-pub fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str) {
+pub async fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str) {
     // Convert relative to absolute path and ensure exists
     let path = match canonicalize(key) {
         Ok(path) => path,
@@ -26,7 +26,7 @@ pub fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str
     };
 
     // Sign the public key
-    let signed = match client.sign(role.to_string(), contents) {
+    let signed = match client.sign(role.to_string(), contents).await {
         Ok(signed) => signed,
         Err(e) => {
             println!("Failed to sign public key: {}", e);

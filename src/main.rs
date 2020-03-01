@@ -1,14 +1,17 @@
 extern crate clap;
 extern crate dirs;
+extern crate reqwest;
 extern crate serde;
 extern crate serde_yaml;
 extern crate url;
 
+mod api;
 mod cli;
 mod config;
 mod errors;
 mod subcommands;
 
+use api::ApiClient;
 use config::Config;
 use std::process::exit;
 
@@ -54,6 +57,21 @@ fn main() {
             )
         } else {
             subcommands::setup::interactive();
+        }
+    }
+
+    // Initialize API client
+    let client = ApiClient::from_config(cfg);
+    match client.validate() {
+        Ok(status) => {
+            if !status {
+                println!("Invalid token, please ensure it is correct and try again");
+                exit(1);
+            }
+        },
+        Err(e) => {
+            println!("Failed to validate token: {}", e);
+            exit(1);
         }
     }
 }

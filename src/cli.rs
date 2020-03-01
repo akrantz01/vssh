@@ -19,6 +19,7 @@ pub fn generate_cli<'a>() -> App<'a, 'a> {
         .subcommand(setup())
         .subcommand(list())
         .subcommand(sign())
+        .subcommand(connect())
 }
 
 fn setup<'a>() -> App<'a, 'a> {
@@ -85,5 +86,28 @@ fn sign<'a>() -> App<'a, 'a> {
             .long("output")
             .value_name("FILE")
             .help("File to write the signed certificate to")
+            .takes_value(true))
+}
+
+fn connect<'a>() -> App<'a, 'a> {
+    SubCommand::with_name("connect")
+        .about("Connect to a server with a signed certificate")
+        .arg(Arg::with_name("ROLE")
+            .help("Role to sign public key with")
+            .required(true)
+            .index(1))
+        .arg(Arg::with_name("KEY")
+            .help("Private key to authenticate with")
+            .required(true)
+            .index(2))
+        .arg(Arg::with_name("SERVER")
+            .help("SSH server connection string")
+            .required(true)
+            .index(3))
+        .arg(Arg::with_name("options")
+            .short("o")
+            .long("options")
+            .value_name("OPTIONS")
+            .help("Extra SSH client options")
             .takes_value(true))
 }

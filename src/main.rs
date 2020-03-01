@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate dirs;
+extern crate rand;
 extern crate reqwest;
 extern crate serde;
 extern crate serde_yaml;
@@ -87,6 +88,9 @@ fn main() {
             "sign" => if let Some(sign) = matches.subcommand_matches("sign") {
                 subcommands::sign::sign(&client, sign.value_of("ROLE").unwrap_or_default(), sign.value_of("KEY").unwrap_or_default(), sign.value_of("output").unwrap_or_default());
             },
+            "connect" => if let Some(connect) = matches.subcommand_matches("connect") {
+                subcommands::connect::connect(&client, connect.value_of("ROLE").unwrap_or_default(), connect.value_of("KEY").unwrap_or_default(), connect.value_of("SERVER").unwrap_or_default(), connect.value_of("options").unwrap_or_default());
+            }
             _ => {}
         }
     }

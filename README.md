@@ -6,6 +6,9 @@ Easily SSH into a server that requires a certificate signed by HashiCorp Vault.
 - Sign an SSH public key
 - Automatically sign a key and SSH into a server
 
+## Installation
+`vssh` can be installed from [crates.io](https://crates.io) using `cargo install vssh`
+
 ## CLI Reference
 Usage: `vssh [OPTIONS] [SUBCOMMAND`
 

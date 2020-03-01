@@ -1,3 +1,6 @@
+![Crates.io](https://img.shields.io/crates/d/vssh)
+![Crates.io](https://img.shields.io/crates/v/vssh)
+
 # Vault SSH
 Easily SSH into a server that requires a certificate signed by HashiCorp Vault.
 

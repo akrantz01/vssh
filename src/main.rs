@@ -14,6 +14,7 @@ mod subcommands;
 use api::ApiClient;
 use config::Config;
 use std::process::exit;
+use std::io;
 
 fn main() {
     // Parse cli arguments and parameters
@@ -72,6 +73,15 @@ fn main() {
         Err(e) => {
             println!("Failed to validate token: {}", e);
             exit(1);
+        }
+    }
+
+    // Handle other/non-existent subcommands
+    match matches.subcommand_name() {
+        None => cli::generate_cli().write_help(&mut io::stdout()).expect("Failed to write help"),
+        Some(name) => match name {
+            "list" => subcommands::list::list(&client),
+            _ => {}
         }
     }
 }

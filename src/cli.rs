@@ -17,6 +17,7 @@ pub fn generate_cli<'a>() -> App<'a, 'a> {
                 .takes_value(true),
         )
         .subcommand(setup())
+        .subcommand(list())
 }
 
 fn setup<'a>() -> App<'a, 'a> {
@@ -60,4 +61,9 @@ fn setup<'a>() -> App<'a, 'a> {
                 .help("Path of the SSH CA on the Vault server")
                 .takes_value(true),
         )
+}
+
+fn list<'a>() -> App<'a, 'a> {
+    SubCommand::with_name("list")
+        .about("List available roles")
 }

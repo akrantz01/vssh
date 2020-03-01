@@ -1,12 +1,11 @@
 use crate::config::Config;
 use crate::errors::ApiError;
-use reqwest::{blocking::Client, Method};
+use reqwest::{blocking::Client, header, Method};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
 
 pub struct ApiClient {
-    token: String,
     address: String,
     client: Client,
 }
@@ -14,18 +13,18 @@ pub struct ApiClient {
 impl ApiClient {
     /// Create a HTTP client from the config file
     pub fn from_config(config: Config) -> Self {
+        let mut headers = header::HeaderMap::new();
+        headers.insert("X-Vault-Token", header::HeaderValue::from_str(&config.token).expect("Failed to convert to header value"));
+
         ApiClient {
-            token: config.token,
             address: config.server,
-            client: Client::new(),
+            client: Client::builder().default_headers(headers).use_native_tls().danger_accept_invalid_certs(config.tls).build().expect("Failed to build client"),
         }
     }
 
     /// Ensure the configuration is valid by getting the token permissions
     pub fn validate(&self) -> Result<bool, reqwest::Error> {
-        let response = self.client.get(&format!("{}/v1/auth/token/lookup-self", self.address).to_string())
-            .header("X-Vault-Token", self.token.as_str())
-            .send()?;
+        let response = self.client.get(&format!("{}/v1/auth/token/lookup-self", self.address).to_string()).send()?;
         Ok(response.status().is_success())
     }
 
@@ -35,7 +34,6 @@ impl ApiClient {
         body.insert("public_key", key);
 
         let response = self.client.put(&format!("{}/v1/ssh-ca/sign/{}", self.address, role))
-            .header("X-Vault-Token", self.token.as_str())
             .json(&body)
             .send()?;
 
@@ -54,9 +52,7 @@ impl ApiClient {
 
     /// Get a list of roles to sign as
     pub fn list_roles(&self) -> Result<Vec<String>, ApiError> {
-        let response = self.client.request(Method::from_str("LIST").unwrap(), &format!("{}/v1/ssh-ca/roles", self.address))
-            .header("X-Vault-Token", self.token.as_str())
-            .send()?;
+        let response = self.client.request(Method::from_str("LIST").unwrap(), &format!("{}/v1/ssh-ca/roles", self.address)).send()?;
 
         let status = response.status();
         if status.is_client_error() {

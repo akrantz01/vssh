@@ -24,7 +24,7 @@ pub fn generate_cli<'a>() -> App<'a, 'a> {
 
 fn setup<'a>() -> App<'a, 'a> {
     SubCommand::with_name("setup")
-        .about("Setup the application")
+        .about("Generate a configuration file")
         .arg(
             Arg::with_name("non-interactive")
                 .long("non-interactive")
@@ -91,7 +91,7 @@ fn sign<'a>() -> App<'a, 'a> {
 
 fn connect<'a>() -> App<'a, 'a> {
     SubCommand::with_name("connect")
-        .about("Connect to a server with a signed certificate")
+        .about("Connect to a server with an automatically generated signed certificate")
         .arg(Arg::with_name("ROLE")
             .help("Role to sign public key with")
             .required(true)

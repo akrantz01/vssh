@@ -21,16 +21,8 @@ pub fn interactive() {
         String::from("ssh-ca"),
     );
 
-    // Get the default key to sign
-    let mut home = dirs::home_dir().expect("Failed to retrieve home directory");
-    home.push(".ssh/id_rsa");
-    let default_key = prompt_default(
-        "What should the default key to sign be?",
-        format!("{}", home.as_path().display()),
-    );
-
     // Ensure the configuration is valid
-    let config = Config::new(server, token, default_key, path, tls);
+    let config = Config::new(server, token, path, tls);
     match config.validate() {
         Ok(_) => {}
         Err(e) => {
@@ -46,16 +38,13 @@ pub fn interactive() {
     }
 }
 
-pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, key: &'a str, path: &'a str) {
+pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, path: &'a str) {
     // Ensure each parameter exists
     if server == "" {
         println!("Option '--server' is required when running non-interactively");
         exit(1);
     } else if token == "" {
         println!("Option '--token' is required when running non-interactively");
-        exit(1);
-    } else if key == "" {
-        println!("Option '--default-key' is required when running non-interactively");
         exit(1);
     } else if path == "" {
         println!("Option '--path' is required when running non-interactively");
@@ -66,7 +55,6 @@ pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, key: &'a s
     let config = Config::new(
         String::from(server),
         String::from(token),
-        String::from(key),
         String::from(path),
         tls,
     );

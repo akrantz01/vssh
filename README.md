@@ -42,7 +42,6 @@ Generate a configuration file
 Usage: `vssh setup [FLAGS] [OPTIONS]`
 
 Options:
-  - `--default-key <KEY>`: Default SSH key to sign
   - `--no-tls`: Disable TLS when connecting to the server
   - `--non-interactive`: Run setup non-interactively
   - `--path <PATH>`: Path of the SSH CA on the Vault server

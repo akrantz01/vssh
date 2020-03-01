@@ -9,7 +9,6 @@ use url::Url;
 pub struct Config {
     pub server: String,
     pub token: String,
-    pub default_key: String,
     pub path: String,
     pub tls: bool,
 }
@@ -19,14 +18,12 @@ impl Config {
     pub fn new(
         server: String,
         token: String,
-        default_key: String,
         path: String,
         tls: bool,
     ) -> Self {
         Config {
             server,
             token,
-            default_key,
             path,
             tls,
         }
@@ -35,7 +32,6 @@ impl Config {
     /// Initializes an empty configuration structure
     pub fn new_empty() -> Self {
         Config::new(
-            String::from(""),
             String::from(""),
             String::from(""),
             String::from(""),
@@ -98,11 +94,6 @@ impl Config {
         // Ensure non-empty token
         if self.token == "" {
             return Err(ConfigError::InvalidToken);
-        }
-
-        // Ensure key exists
-        if !Path::new(&self.default_key).exists() {
-            return Err(ConfigError::InvalidDefaultKey);
         }
 
         Ok(())

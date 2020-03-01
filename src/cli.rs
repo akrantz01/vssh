@@ -50,13 +50,6 @@ fn setup<'a>() -> App<'a, 'a> {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("default-key")
-                .long("default-key")
-                .value_name("KEY")
-                .help("Default SSH key to sign")
-                .takes_value(true),
-        )
-        .arg(
             Arg::with_name("path")
                 .long("path")
                 .value_name("PATH")

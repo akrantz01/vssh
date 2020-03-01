@@ -54,7 +54,6 @@ fn main() {
                 setup.value_of("server").unwrap_or_default(),
                 !setup.is_present("no-tls"),
                 setup.value_of("token").unwrap_or_default(),
-                setup.value_of("default-key").unwrap_or_default(),
                 setup.value_of("path").unwrap_or_default(),
             )
         } else {

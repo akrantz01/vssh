@@ -63,3 +63,4 @@ Arguments:
 ## TODO:
   - [ ] add profiles
   - [ ] custom TLS certificates
+  - [ ] use non-blocking version of `reqwest`

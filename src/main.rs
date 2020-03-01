@@ -78,9 +78,15 @@ fn main() {
 
     // Handle other/non-existent subcommands
     match matches.subcommand_name() {
-        None => cli::generate_cli().write_help(&mut io::stdout()).expect("Failed to write help"),
+        None => {
+            cli::generate_cli().write_help(&mut io::stdout()).expect("Failed to write help");
+            println!();
+        },
         Some(name) => match name {
             "list" => subcommands::list::list(&client),
+            "sign" => if let Some(sign) = matches.subcommand_matches("sign") {
+                subcommands::sign::sign(&client, sign.value_of("ROLE").unwrap_or_default(), sign.value_of("KEY").unwrap_or_default(), sign.value_of("output").unwrap_or_default());
+            },
             _ => {}
         }
     }

@@ -18,6 +18,7 @@ pub fn generate_cli<'a>() -> App<'a, 'a> {
         )
         .subcommand(setup())
         .subcommand(list())
+        .subcommand(sign())
 }
 
 fn setup<'a>() -> App<'a, 'a> {
@@ -66,4 +67,23 @@ fn setup<'a>() -> App<'a, 'a> {
 fn list<'a>() -> App<'a, 'a> {
     SubCommand::with_name("list")
         .about("List available roles")
+}
+
+fn sign<'a>() -> App<'a, 'a> {
+    SubCommand::with_name("sign")
+        .about("Sign an SSH public key")
+        .arg(Arg::with_name("ROLE")
+            .help("Role to sign public key with")
+            .required(true)
+            .index(1))
+        .arg(Arg::with_name("KEY")
+            .help("Public key to be signed")
+            .required(true)
+            .index(2))
+        .arg(Arg::with_name("output")
+            .short("o")
+            .long("output")
+            .value_name("FILE")
+            .help("File to write the signed certificate to")
+            .takes_value(true))
 }

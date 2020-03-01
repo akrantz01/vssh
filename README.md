@@ -42,11 +42,12 @@ Generate a configuration file
 Usage: `vssh setup [FLAGS] [OPTIONS]`
 
 Options:
-  - `--no-tls`: Disable TLS when connecting to the server
+  - `--no-tls`: Disable verification TLS when connecting to the server
   - `--non-interactive`: Run setup non-interactively
   - `--path <PATH>`: Path of the SSH CA on the Vault server
   - `--server <SERVER>`: HashiCorp Vault server to connect to
   - `--token <TOKEN>`: Token to use when authenticating
+  - `--custom-ca <PATH>`: Path to the public part of the custom CA
 
 ### Sign
 Sign an SSH public key
@@ -62,6 +63,6 @@ Arguments:
 
 ## TODO:
   - [ ] add profiles
-  - [ ] custom CAs
+  - [x] custom CAs
   - [x] self-signed certificates
   - [ ] use non-blocking version of `reqwest`

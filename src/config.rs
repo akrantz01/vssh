@@ -1,6 +1,7 @@
 use crate::errors::ConfigError;
+use reqwest::Certificate;
 use serde::{Deserialize, Serialize};
-use std::fs::{read_to_string, OpenOptions};
+use std::fs::{File, read_to_string, OpenOptions};
 use std::io::prelude::*;
 use std::path::Path;
 use url::Url;
@@ -10,6 +11,7 @@ pub struct Config {
     pub server: String,
     pub token: String,
     pub path: String,
+    pub custom_ca: String,
     pub tls: bool,
 }
 
@@ -19,12 +21,14 @@ impl Config {
         server: String,
         token: String,
         path: String,
+        custom_ca: String,
         tls: bool,
     ) -> Self {
         Config {
             server,
             token,
             path,
+            custom_ca,
             tls,
         }
     }
@@ -32,6 +36,7 @@ impl Config {
     /// Initializes an empty configuration structure
     pub fn new_empty() -> Self {
         Config::new(
+            String::from(""),
             String::from(""),
             String::from(""),
             String::from(""),
@@ -96,6 +101,21 @@ impl Config {
             return Err(ConfigError::InvalidToken);
         }
 
+        // Validate custom CA configuration if in use
+        if self.custom_ca != "" {
+            self.read_certificate()?;
+        }
+
         Ok(())
+    }
+
+    /// Read a PEM encoded public certificate
+    pub fn read_certificate(&self) -> Result<Certificate, ConfigError> {
+        // Ensure exists
+        let mut raw_pem = Vec::new();
+        File::open(&self.custom_ca)?.read_to_end(&mut raw_pem)?;
+
+        // Parse PEM
+        Ok(Certificate::from_pem(&raw_pem)?)
     }
 }

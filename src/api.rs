@@ -16,9 +16,16 @@ impl ApiClient {
         let mut headers = header::HeaderMap::new();
         headers.insert("X-Vault-Token", header::HeaderValue::from_str(&config.token).expect("Failed to convert to header value"));
 
+        // Generate custom client
+        let client = Client::builder().default_headers(headers).use_native_tls().danger_accept_invalid_certs(config.tls);
+
         ApiClient {
-            address: config.server,
-            client: Client::builder().default_headers(headers).use_native_tls().danger_accept_invalid_certs(config.tls).build().expect("Failed to build client"),
+            address: config.server.clone(),
+            client: if config.custom_ca != "" {
+                client.add_root_certificate(config.read_certificate().expect("Failed to read custom certificate")).build().expect("Failed to build API client")
+            } else {
+                client.build().expect("Failed to build API client")
+            },
         }
     }
 

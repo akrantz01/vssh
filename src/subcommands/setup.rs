@@ -9,8 +9,25 @@ pub fn interactive() {
         String::from("https://127.0.0.1:8200"),
     );
 
-    // Determine whether TLS should be used
-    let tls = prompt_bool("Should TLS be use to connect to he server?", true);
+    // Check if using HTTPS
+    let using_https = prompt_bool("Are you using HTTPS to connect to the server?", true);
+    
+    // Options only for those using HTTPS
+    let custom_ca: String;
+    let tls = if using_https {
+        // Ask if using custom CA and get certificate path
+        custom_ca = if prompt_bool("Are you using a custom certificate authority?", false) {
+            prompt("What is the path to your CA's public key?")
+        } else {
+            String::from("")
+        };
+
+        // Prompt for TLS verification
+        prompt_bool("Do you want to verify TLS certificates when connecting to the server? Answer no if you are using a self-signed certificate.", true)
+    } else {
+        custom_ca = String::from("");
+        true
+    };
 
     // Get the authentication token
     let token = prompt("What token to vssh authenticated to the server with?");
@@ -22,7 +39,7 @@ pub fn interactive() {
     );
 
     // Ensure the configuration is valid
-    let config = Config::new(server, token, path, tls);
+    let config = Config::new(server, token, path, custom_ca, tls);
     match config.validate() {
         Ok(_) => {}
         Err(e) => {
@@ -38,7 +55,7 @@ pub fn interactive() {
     }
 }
 
-pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, path: &'a str) {
+pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, path: &'a str, custom_ca: &'a str) {
     // Ensure each parameter exists
     if server == "" {
         println!("Option '--server' is required when running non-interactively");
@@ -56,6 +73,7 @@ pub fn noninteractive<'a>(server: &'a str, tls: bool, token: &'a str, path: &'a 
         String::from(server),
         String::from(token),
         String::from(path),
+        String::from(custom_ca),
         tls,
     );
     match config.validate() {

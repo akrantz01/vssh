@@ -40,7 +40,7 @@ fn setup<'a>() -> App<'a, 'a> {
         .arg(
             Arg::with_name("no-tls")
                 .long("no-tls")
-                .help("Disable TLS when connecting to the server"),
+                .help("Disable TLS verification when connecting to the server"),
         )
         .arg(
             Arg::with_name("token")
@@ -56,6 +56,11 @@ fn setup<'a>() -> App<'a, 'a> {
                 .help("Path of the SSH CA on the Vault server")
                 .takes_value(true),
         )
+        .arg(Arg::with_name("custom-ca")
+            .long("custom-ca")
+            .value_name("PATH")
+            .help("Path to the public part of the custom CA")
+            .takes_value(true))
 }
 
 fn list<'a>() -> App<'a, 'a> {

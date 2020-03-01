@@ -3,6 +3,13 @@ name = "vssh"
 version = "0.1.0"
 authors = ["Alex Krantz <alex@alexkrantz.com>"]
 edition = "2018"
+license = "MIT"
+description = "Easily SSH into a server that requires a certificate signed by HashiCorp Vault"
+readme = "README.md"
+homepage = "https://github.com/akrantz01/vssh.git"
+repository = "https://github.com/akrantz01/vssh.git"
+keywords = ["cli", "vault", "ssh"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

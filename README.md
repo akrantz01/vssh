@@ -1,5 +1,5 @@
 # Vault SSH
-Easily connect to a server that requires a certificate signed by a HashiCorp Vault server.
+Easily SSH into a server that requires a certificate signed by HashiCorp Vault.
 
 ## Features
 - List signable roles

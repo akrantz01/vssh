@@ -8,13 +8,13 @@ use std::process::{exit, Command};
 
 pub async fn connect<'a>(
     client: &ApiClient,
-    role: &'a str,
-    key: &'a str,
-    server: &'a str,
-    options: &'a str,
+    role: String,
+    key: String,
+    server: String,
+    options: String,
 ) {
     // Convert relative to absolute path and ensure exists
-    let path = match canonicalize(key) {
+    let path = match canonicalize(&key) {
         Ok(path) => path,
         Err(e) => {
             match e.kind() {

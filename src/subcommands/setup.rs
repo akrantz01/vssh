@@ -56,11 +56,11 @@ pub fn interactive() {
 }
 
 pub fn noninteractive<'a>(
-    server: &'a str,
+    server: String,
     tls: bool,
-    token: &'a str,
-    path: &'a str,
-    custom_ca: &'a str,
+    token: String,
+    path: String,
+    custom_ca: String,
 ) {
     // Ensure each parameter exists
     if server == "" {
@@ -76,10 +76,10 @@ pub fn noninteractive<'a>(
 
     // Ensure the configuration is valid
     let config = Config::new(
-        String::from(server),
-        String::from(token),
-        String::from(path),
-        String::from(custom_ca),
+        server,
+        token,
+        path,
+        custom_ca,
         tls,
     );
     match config.validate() {

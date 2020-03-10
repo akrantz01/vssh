@@ -27,17 +27,6 @@ impl Config {
         }
     }
 
-    /// Initializes an empty configuration structure
-    pub fn new_empty() -> Self {
-        Config::new(
-            String::from(""),
-            String::from(""),
-            String::from(""),
-            String::from(""),
-            false,
-        )
-    }
-
     /// Read the default configuration file.
     /// This is stored at `$HOME/.config/vssh.yml`
     pub fn read_default() -> Result<Self, ConfigError> {

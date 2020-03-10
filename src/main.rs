@@ -1,9 +1,9 @@
-extern crate clap;
 extern crate dirs;
 extern crate rand;
 extern crate reqwest;
 extern crate serde;
 extern crate serde_yaml;
+extern crate structopt;
 extern crate tokio;
 extern crate url;
 
@@ -14,103 +14,85 @@ mod errors;
 mod subcommands;
 
 use api::ApiClient;
+use cli::{Command, Opts};
 use config::Config;
-use std::io;
 use std::process::exit;
+use structopt::StructOpt;
 
 #[tokio::main]
 async fn main() {
     // Parse cli arguments and parameters
-    let matches = cli::generate_cli().get_matches();
+    let cli = Opts::from_args();
 
+    match cli.cmd {
+        Command::Setup { non_interactive, server, no_tls, token, path, custom_ca } => {
+            if non_interactive {
+                subcommands::setup::noninteractive(server.unwrap_or_default(), !no_tls, token.unwrap_or_default(), path.unwrap_or_default(), custom_ca.unwrap_or_default())
+            } else {
+                subcommands::setup::interactive()
+            }
+        },
+        Command::List => {
+            let config = load_config(cli.config);
+            let client = initialize_api(config).await;
+            subcommands::list::list(&client).await
+        },
+        Command::Sign { role, key, output } => {
+            let config = load_config(cli.config);
+            let client = initialize_api(config).await;
+            subcommands::sign::sign(&client, role, key, output.unwrap_or_default()).await;
+        },
+        Command::Connect { role, key, server, options } => {
+            let config = load_config(cli.config);
+            let client = initialize_api(config).await;
+            subcommands::connect::connect(&client, role, key, server, options.unwrap_or_default()).await;
+        },
+    };
+}
+
+/// Load configuration file and handle errors
+fn load_config(file: Option<String>) -> Config {
     // Attempt to read config file
-    let cfg_result = if matches.value_of("config").unwrap_or_default() == "" {
-        Config::read_default()
+    let config = if let Some(file) = file {
+        Config::read(file)
     } else {
-        Config::read(matches.value_of("config").unwrap().to_string())
+        Config::read_default()
     };
 
-    // Ensure exists
-    let cfg = match cfg_result {
+    // Ensure no errors when loading
+    match config {
         Ok(c) => c,
         Err(e) => match e {
             errors::ConfigError::NonExistentConfigFile => {
-                if matches.subcommand_name().unwrap_or_default() != "setup" {
-                    println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
-                    exit(1);
-                }
-                Config::new_empty()
-            }
+                println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
+                exit(1);
+            },
             _ => {
                 println!("Failed to load configuration: {}", e);
                 exit(1);
             }
-        },
-    };
-
-    // Handle the setup subcommand
-    if let Some(setup) = matches.subcommand_matches("setup") {
-        // Determine whether to run in interactive or non-interactive mode
-        if setup.is_present("non-interactive") {
-            subcommands::setup::noninteractive(
-                setup.value_of("server").unwrap_or_default(),
-                !setup.is_present("no-tls"),
-                setup.value_of("token").unwrap_or_default(),
-                setup.value_of("path").unwrap_or_default(),
-                setup.value_of("custom-ca").unwrap_or_default(),
-            )
-        } else {
-            subcommands::setup::interactive();
         }
     }
+}
 
-    // Initialize API client
+/// Initialize the API client to interact with Vault
+async fn initialize_api(cfg: Config) -> ApiClient {
+    // Generate a client from the configuration
     let client = ApiClient::from_config(cfg);
+    
+    // Ensure able to access API
     match client.validate().await {
         Ok(status) => {
             if !status {
                 println!("Invalid token, please ensure it is correct and try again");
                 exit(1);
             }
-        }
+        },
         Err(e) => {
             println!("Failed to validate token: {}", e);
             exit(1);
         }
-    }
-
-    // Handle other/non-existent subcommands
-    match matches.subcommand_name() {
-        None => {
-            cli::generate_cli()
-                .write_help(&mut io::stdout())
-                .expect("Failed to write help");
-            println!();
-        }
-        Some(name) => match name {
-            "list" => subcommands::list::list(&client).await,
-            "sign" => {
-                if let Some(sign) = matches.subcommand_matches("sign") {
-                    subcommands::sign::sign(
-                        &client,
-                        sign.value_of("ROLE").unwrap_or_default(),
-                        sign.value_of("KEY").unwrap_or_default(),
-                        sign.value_of("output").unwrap_or_default(),
-                    ).await;
-                }
-            }
-            "connect" => {
-                if let Some(connect) = matches.subcommand_matches("connect") {
-                    subcommands::connect::connect(
-                        &client,
-                        connect.value_of("ROLE").unwrap_or_default(),
-                        connect.value_of("KEY").unwrap_or_default(),
-                        connect.value_of("SERVER").unwrap_or_default(),
-                        connect.value_of("options").unwrap_or_default(),
-                    ).await;
-                }
-            }
-            _ => {}
-        },
     };
+
+    client
 }

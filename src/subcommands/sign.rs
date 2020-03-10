@@ -3,9 +3,9 @@ use std::fs::{canonicalize, read_to_string, OpenOptions};
 use std::io::{ErrorKind, Write};
 use std::process::exit;
 
-pub async fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &'a str) {
+pub async fn sign<'a>(client: &ApiClient, role: String, key: String, output: String) {
     // Convert relative to absolute path and ensure exists
-    let path = match canonicalize(key) {
+    let path = match canonicalize(&key) {
         Ok(path) => path,
         Err(e) => {
             match e.kind() {
@@ -40,7 +40,7 @@ pub async fn sign<'a>(client: &ApiClient, role: &'a str, key: &'a str, output: &
     }
 
     // Create output file if not exists
-    let mut file = match OpenOptions::new().write(true).create(true).open(output) {
+    let mut file = match OpenOptions::new().write(true).create(true).open(&output) {
         Ok(file) => file,
         Err(e) => {
             match e.kind() {

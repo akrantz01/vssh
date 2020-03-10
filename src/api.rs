@@ -102,9 +102,7 @@ impl ApiClient {
     fn response_to_error(&self, response: ErrorResponse) -> ApiError {
         if response.errors[0].contains("permission denied") {
             ApiError::PermissionDenied
-        } else if response.errors[0].contains("missing public_key") {
-            ApiError::InvalidPublicKey
-        } else if response.errors[0].contains("failed to parse public_key as SSH key") {
+        } else if response.errors[0].contains("missing public_key") || response.errors[0].contains("failed to parse public_key as SSH key") {
             ApiError::InvalidPublicKey
         } else if response.errors[0].contains("Unknown role") {
             ApiError::UnknownRole

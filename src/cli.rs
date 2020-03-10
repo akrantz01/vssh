@@ -1,7 +1,7 @@
 use clap::{App, Arg, SubCommand};
 
-static VERSION: &'static str = "0.1.0";
-static AUTHOR: &'static str = "Alex Krantz <alex@alexkrantz.com>";
+static VERSION: &str = "0.1.0";
+static AUTHOR: &str = "Alex Krantz <alex@alexkrantz.com>";
 
 pub fn generate_cli<'a>() -> App<'a, 'a> {
     App::new("vssh")

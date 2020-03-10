@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::errors::ApiError;
-use reqwest::{Client, header, Method};
+use reqwest::{header, Client, Method};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -48,7 +48,8 @@ impl ApiClient {
         let response = self
             .client
             .get(&format!("{}/v1/auth/token/lookup-self", self.address).to_string())
-            .send().await?;
+            .send()
+            .await?;
         Ok(response.status().is_success())
     }
 
@@ -61,7 +62,8 @@ impl ApiClient {
             .client
             .put(&format!("{}/v1/ssh-ca/sign/{}", self.address, role))
             .json(&body)
-            .send().await?;
+            .send()
+            .await?;
 
         // Ensure successful
         let status = response.status();
@@ -84,7 +86,8 @@ impl ApiClient {
                 Method::from_str("LIST").unwrap(),
                 &format!("{}/v1/ssh-ca/roles", self.address),
             )
-            .send().await?;
+            .send()
+            .await?;
 
         let status = response.status();
         if status.is_client_error() {
@@ -102,7 +105,9 @@ impl ApiClient {
     fn response_to_error(&self, response: ErrorResponse) -> ApiError {
         if response.errors[0].contains("permission denied") {
             ApiError::PermissionDenied
-        } else if response.errors[0].contains("missing public_key") || response.errors[0].contains("failed to parse public_key as SSH key") {
+        } else if response.errors[0].contains("missing public_key")
+            || response.errors[0].contains("failed to parse public_key as SSH key")
+        {
             ApiError::InvalidPublicKey
         } else if response.errors[0].contains("Unknown role") {
             ApiError::UnknownRole

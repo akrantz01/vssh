@@ -1,7 +1,11 @@
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "vssh", author = "Alex Krantz <alex@alexkrantz.com>", version = "0.1.0")]
+#[structopt(
+    name = "vssh",
+    author = "Alex Krantz <alex@alexkrantz.com>",
+    version = "0.1.0"
+)]
 /// SSH into a server requiring a certificate signed by a Hashicorp Vault instance
 pub struct Opts {
     /// Sets a custom config file

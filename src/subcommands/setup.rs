@@ -55,13 +55,7 @@ pub fn interactive() {
     }
 }
 
-pub fn noninteractive<'a>(
-    server: String,
-    tls: bool,
-    token: String,
-    path: String,
-    custom_ca: String,
-) {
+pub fn noninteractive(server: String, tls: bool, token: String, path: String, custom_ca: String) {
     // Ensure each parameter exists
     if server == "" {
         println!("Option '--server' is required when running non-interactively");
@@ -75,13 +69,7 @@ pub fn noninteractive<'a>(
     }
 
     // Ensure the configuration is valid
-    let config = Config::new(
-        server,
-        token,
-        path,
-        custom_ca,
-        tls,
-    );
+    let config = Config::new(server, token, path, custom_ca, tls);
     match config.validate() {
         Ok(_) => {}
         Err(e) => {

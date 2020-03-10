@@ -25,28 +25,47 @@ async fn main() {
     let cli = Opts::from_args();
 
     match cli.cmd {
-        Command::Setup { non_interactive, server, no_tls, token, path, custom_ca } => {
+        Command::Setup {
+            non_interactive,
+            server,
+            no_tls,
+            token,
+            path,
+            custom_ca,
+        } => {
             if non_interactive {
-                subcommands::setup::noninteractive(server.unwrap_or_default(), !no_tls, token.unwrap_or_default(), path.unwrap_or_default(), custom_ca.unwrap_or_default())
+                subcommands::setup::noninteractive(
+                    server.unwrap_or_default(),
+                    !no_tls,
+                    token.unwrap_or_default(),
+                    path.unwrap_or_default(),
+                    custom_ca.unwrap_or_default(),
+                )
             } else {
                 subcommands::setup::interactive()
             }
-        },
+        }
         Command::List => {
             let config = load_config(cli.config);
             let client = initialize_api(config).await;
             subcommands::list::list(&client).await
-        },
+        }
         Command::Sign { role, key, output } => {
             let config = load_config(cli.config);
             let client = initialize_api(config).await;
             subcommands::sign::sign(&client, role, key, output.unwrap_or_default()).await;
-        },
-        Command::Connect { role, key, server, options } => {
+        }
+        Command::Connect {
+            role,
+            key,
+            server,
+            options,
+        } => {
             let config = load_config(cli.config);
             let client = initialize_api(config).await;
-            subcommands::connect::connect(&client, role, key, server, options.unwrap_or_default()).await;
-        },
+            subcommands::connect::connect(&client, role, key, server, options.unwrap_or_default())
+                .await;
+        }
     };
 }
 
@@ -66,12 +85,12 @@ fn load_config(file: Option<String>) -> Config {
             errors::ConfigError::NonExistentConfigFile => {
                 println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
                 exit(1);
-            },
+            }
             _ => {
                 println!("Failed to load configuration: {}", e);
                 exit(1);
             }
-        }
+        },
     }
 }
 
@@ -79,7 +98,7 @@ fn load_config(file: Option<String>) -> Config {
 async fn initialize_api(cfg: Config) -> ApiClient {
     // Generate a client from the configuration
     let client = ApiClient::from_config(cfg);
-    
+
     // Ensure able to access API
     match client.validate().await {
         Ok(status) => {
@@ -87,7 +106,7 @@ async fn initialize_api(cfg: Config) -> ApiClient {
                 println!("Invalid token, please ensure it is correct and try again");
                 exit(1);
             }
-        },
+        }
         Err(e) => {
             println!("Failed to validate token: {}", e);
             exit(1);

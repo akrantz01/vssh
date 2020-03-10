@@ -14,7 +14,7 @@ mod errors;
 mod subcommands;
 
 use api::ApiClient;
-use cli::{Command, Opts};
+use cli::{Command, Opts, Profiles};
 use config::Config;
 use std::process::exit;
 use structopt::StructOpt;
@@ -65,6 +65,32 @@ async fn main() {
             let client = initialize_api(config).await;
             subcommands::connect::connect(&client, role, key, server, options.unwrap_or_default())
                 .await;
+        }
+        Command::Profiles(p) => match p {
+            Profiles::Create { name, username, address, role, private_key } => {
+                let config = load_config(cli.config);
+
+            },
+            Profiles::Read { name } => {
+                let config = load_config(cli.config);
+
+            },
+            Profiles::List => {
+                let config = load_config(cli.config);
+
+            },
+            Profiles::Update {name, username, address, role, private_key } => {
+                let config = load_config(cli.config);
+
+            },
+            Profiles::Delete { name } => {
+                let config = load_config(cli.config);
+
+            },
+            Profiles::Connect { name } => {
+                let config = load_config(cli.config);
+                let client = initialize_api(config).await;
+            },
         }
     };
 }

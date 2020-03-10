@@ -13,6 +13,16 @@ pub struct Config {
     pub path: String,
     pub custom_ca: String,
     pub tls: bool,
+    pub profiles: Vec<Profile>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Profile {
+    pub name: String,
+    pub username: String,
+    pub address: String,
+    pub role: String,
+    pub private_key: String,
 }
 
 impl Config {
@@ -24,6 +34,7 @@ impl Config {
             path,
             custom_ca,
             tls,
+            profiles: Vec::new(),
         }
     }
 

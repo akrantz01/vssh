@@ -62,4 +62,60 @@ pub enum Command {
         /// Extra SSH client options
         options: Option<String>,
     },
+    /// Manage server profiles
+    Profiles(Profiles),
+}
+
+#[derive(Debug, StructOpt)]
+pub enum Profiles {
+    /// Create a new profile for a server
+    /// 
+    /// Uses the current user's username if none is specified
+    Create {
+        /// Name for the profile
+        name: String,
+        #[structopt(short, long)]
+        /// Username to connect as, defaults to current user
+        username: Option<String>,
+        /// IP address or FQDN of the server
+        address: String,
+        /// Role to sign the public key as
+        role: String,
+        /// Private key to use for authentication
+        private_key: String,
+    },
+    /// Get the details about a profile
+    Read {
+        /// Name of the profile
+        name: String,
+    },
+    /// Get a list of all the profiles
+    List,
+    /// Update a profile
+    Update {
+        /// Name of the profile
+        name: String,
+        #[structopt(short, long)]
+        /// New username to use
+        username: Option<String>,
+        #[structopt(short, long)]
+        /// New IP address or FQDN to use
+        address: Option<String>,
+        #[structopt(short, long)]
+        /// New role to use for signing
+        role: Option<String>,
+        #[structopt(short, long)]
+        /// New private key to authenticate with
+        private_key: Option<String>
+    },
+    /// Delete a profile
+    Delete {
+        /// Name of the profile
+        name: String,
+    },
+    /// Connect to a profile
+    Connect {
+        /// Name of the profile
+        name: String,
+    }
 }

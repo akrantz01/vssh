@@ -7,7 +7,7 @@ pub enum ConfigError {
     InvalidToken,
     NonExistentConfigFile,
     ReadError(io::Error),
-    YamlError(serde_json::Error),
+    JsonError(serde_json::Error),
     CertificateDecodeError(reqwest::Error),
 }
 
@@ -18,7 +18,7 @@ impl fmt::Display for ConfigError {
             ConfigError::InvalidToken => write!(f, "Invalid authentication token"),
             ConfigError::NonExistentConfigFile => write!(f, "Configuration file does not exist"),
             ConfigError::ReadError(e) => write!(f, "Failed to read from file: {}", e),
-            ConfigError::YamlError(e) => write!(f, "Failed to decode YAML: {}", e),
+            ConfigError::JsonError(e) => write!(f, "Failed to decode JSON: {}", e),
             ConfigError::CertificateDecodeError(e) => {
                 write!(f, "Failed to decode certificate: {}", e)
             }
@@ -36,7 +36,7 @@ impl From<io::Error> for ConfigError {
 
 impl From<serde_json::Error> for ConfigError {
     fn from(error: serde_json::Error) -> Self {
-        ConfigError::YamlError(error)
+        ConfigError::JsonError(error)
     }
 }
 

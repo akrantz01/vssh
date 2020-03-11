@@ -90,11 +90,12 @@ pub enum Profiles {
         #[structopt(short, long)]
         /// Private key to use for authentication
         private_key: Option<String>,
-        #[structopt(short, long)]
+        #[structopt(short="k", long)]
         /// Public key to be signed
         public_key: Option<String>,
+        #[structopt(short, long)]
         /// Other options to pass to the ssh command
-        options: String,
+        options: Option<String>,
     },
     #[structopt(alias = "inspect")]
     /// Get the details about a profile

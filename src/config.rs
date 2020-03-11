@@ -41,10 +41,10 @@ impl Config {
     }
 
     /// Read the default configuration file.
-    /// This is stored at `$HOME/.config/vssh.yml`
+    /// This is stored at `$HOME/.config/vssh.json`
     pub fn read_default() -> Result<Self, ConfigError> {
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
-        home.push(".config/vssh.yml");
+        home.push(".config/vssh.json");
         Config::read(
             home.as_path()
                 .to_str()
@@ -65,12 +65,12 @@ impl Config {
     }
 
     /// Write the currently stored configuration to the default location.
-    /// The configuration is stored as YAML.
+    /// The configuration is stored as JSON.
     pub fn write(&self) -> Result<(), ConfigError> {
         let encoded = serde_json::to_string(self)?;
 
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
-        home.push(".config/vssh.yml");
+        home.push(".config/vssh.json");
 
         let mut file = OpenOptions::new()
             .write(true)

@@ -94,7 +94,7 @@ async fn main() {
                     role,
                     private_key,
                     public_key,
-                    options,
+                    options.unwrap_or_default(),
                     config,
                 );
             }
@@ -154,7 +154,7 @@ fn load_config(file: Option<String>) -> Config {
         Ok(c) => c,
         Err(e) => match e {
             errors::ConfigError::NonExistentConfigFile => {
-                println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.yml");
+                println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.json");
                 exit(1);
             }
             _ => {

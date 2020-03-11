@@ -50,12 +50,12 @@ async fn main() {
         Command::List => {
             let config = load_config(cli.config);
             let client = initialize_api(&config).await;
-            subcommands::list::list(&client).await
+            subcommands::list(&client).await
         }
         Command::Sign { role, key, output } => {
             let config = load_config(cli.config);
             let client = initialize_api(&config).await;
-            subcommands::sign::sign(&client, role, key, output.unwrap_or_default()).await;
+            subcommands::sign(&client, role, key, output.unwrap_or_default()).await;
         }
         Command::Connect {
             role,
@@ -65,7 +65,7 @@ async fn main() {
         } => {
             let config = load_config(cli.config);
             let client = initialize_api(&config).await;
-            subcommands::connect::connect(&client, role, key, server, options.unwrap_or_default())
+            subcommands::connect(&client, role, key, server, options.unwrap_or_default())
                 .await;
         }
         Command::Profiles(p) => match p {
@@ -78,7 +78,7 @@ async fn main() {
                 options,
             } => {
                 let config = load_config(cli.config);
-                subcommands::profiles::create::create(
+                subcommands::profiles::create(
                     name,
                     username.unwrap_or_default(),
                     address,
@@ -90,11 +90,11 @@ async fn main() {
             }
             Profiles::Read { name } => {
                 let config = load_config(cli.config);
-                subcommands::profiles::read::read(name, config);
+                subcommands::profiles::read(name, config);
             }
             Profiles::List => {
                 let config = load_config(cli.config);
-                subcommands::profiles::list::list(config);
+                subcommands::profiles::list(config);
             }
             Profiles::Update {
                 name,
@@ -105,7 +105,7 @@ async fn main() {
                 options,
             } => {
                 let config = load_config(cli.config);
-                subcommands::profiles::update::update(
+                subcommands::profiles::update(
                     name,
                     username,
                     address,
@@ -117,12 +117,12 @@ async fn main() {
             }
             Profiles::Delete { name } => {
                 let config = load_config(cli.config);
-                subcommands::profiles::delete::delete(name, config);
+                subcommands::profiles::delete(name, config);
             }
             Profiles::Connect { name } => {
                 let config = load_config(cli.config);
                 let client = initialize_api(&config).await;
-                subcommands::profiles::connect::connect(name, &client, &config).await;
+                subcommands::profiles::connect(name, &client, &config).await;
             }
         },
     };

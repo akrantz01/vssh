@@ -1,5 +1,9 @@
-pub mod connect;
-pub mod list;
+mod connect;
+mod list;
 pub mod profiles;
 pub mod setup;
-pub mod sign;
+mod sign;
+
+pub use connect::connect;
+pub use list::list;
+pub use sign::sign;

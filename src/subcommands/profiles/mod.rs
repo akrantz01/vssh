@@ -1,6 +1,13 @@
-pub mod connect;
-pub mod create;
-pub mod delete;
-pub mod list;
-pub mod read;
-pub mod update;
+mod connect;
+mod create;
+mod delete;
+mod list;
+mod read;
+mod update;
+
+pub use connect::connect;
+pub use create::create;
+pub use delete::delete;
+pub use list::list;
+pub use read::read;
+pub use update::update;

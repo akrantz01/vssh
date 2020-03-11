@@ -55,8 +55,12 @@ pub enum Command {
     Connect {
         /// Role to sign public key with
         role: String,
+        #[structopt(short, long)]
         /// Private key to authenticate with
-        key: String,
+        private_key: Option<String>,
+        #[structopt(short, long)]
+        /// Alternative public key to use
+        public_key: Option<String>,
         /// SSH server connection string
         server: String,
         #[structopt(short, long)]
@@ -83,8 +87,12 @@ pub enum Profiles {
         address: String,
         /// Role to sign the public key as
         role: String,
+        #[structopt(short, long)]
         /// Private key to use for authentication
-        private_key: String,
+        private_key: Option<String>,
+        #[structopt(short, long)]
+        /// Public key to be signed
+        public_key: Option<String>,
         /// Other options to pass to the ssh command
         options: String,
     },
@@ -113,6 +121,9 @@ pub enum Profiles {
         #[structopt(short, long)]
         /// New private key to authenticate with
         private_key: Option<String>,
+        #[structopt(short, long)]
+        /// New public key to sign
+        public_key: Option<String>,
         #[structopt(short, long)]
         /// New options to pass to ssh
         options: Option<String>,

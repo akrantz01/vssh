@@ -59,14 +59,22 @@ async fn main() {
         }
         Command::Connect {
             role,
-            key,
+            private_key,
+            public_key,
             server,
             options,
         } => {
             let config = load_config(cli.config);
             let client = initialize_api(&config).await;
-            subcommands::connect(&client, role, key, server, options.unwrap_or_default())
-                .await;
+            subcommands::connect(
+                &client,
+                role,
+                private_key,
+                public_key,
+                server,
+                options.unwrap_or_default(),
+            )
+            .await;
         }
         Command::Profiles(p) => match p {
             Profiles::Create {
@@ -75,15 +83,17 @@ async fn main() {
                 address,
                 role,
                 private_key,
+                public_key,
                 options,
             } => {
                 let config = load_config(cli.config);
                 subcommands::profiles::create(
                     name,
-                    username.unwrap_or_default(),
+                    username,
                     address,
                     role,
                     private_key,
+                    public_key,
                     options,
                     config,
                 );
@@ -102,6 +112,7 @@ async fn main() {
                 address,
                 role,
                 private_key,
+                public_key,
                 options,
             } => {
                 let config = load_config(cli.config);
@@ -111,6 +122,7 @@ async fn main() {
                     address,
                     role,
                     private_key,
+                    public_key,
                     options,
                     config,
                 );

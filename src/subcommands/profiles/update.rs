@@ -7,6 +7,7 @@ pub fn update(
     address: Option<String>,
     role: Option<String>,
     private_key: Option<String>,
+    public_key: Option<String>,
     options: Option<String>,
     mut config: Config,
 ) {
@@ -35,7 +36,12 @@ pub fn update(
 
         // Set private key if exists
         if let Some(private_key) = private_key {
-            profile.private_key = private_key;
+            profile.private_key = Some(private_key);
+        }
+
+        // Set public key if exists
+        if let Some(public_key) = public_key {
+            profile.public_key = Some(public_key);
         }
 
         // Set options if exists

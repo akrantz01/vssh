@@ -6,29 +6,38 @@ use std::process::{exit, Command};
 pub async fn connect<'a>(
     client: &ApiClient,
     role: String,
-    key: String,
+    private_key: Option<String>,
+    public_key: Option<String>,
     server: String,
     options: String,
 ) {
-    // Convert relative to absolute path and ensure exists
-    let path = match canonicalize(&key) {
-        Ok(path) => path,
-        Err(e) => {
-            match e.kind() {
-                ErrorKind::NotFound => println!("Private key '{}' does not exist", key),
-                _ => println!("Failed to convert relative to absolute path: {}", e),
-            }
-            exit(1);
-        }
+    // Use provided private key or default
+    let private_key = if let Some(private_key) = private_key {
+        private_key
+    } else {
+        String::from("~/.ssh/id_rsa")
     };
 
+    // Use provided public key or default
+    let public_key = if let Some(public_key) = public_key {
+        public_key
+    } else {
+        format!("{}.pub", private_key)
+    };
+
+    // Ensure private key exists
+    let private_path = ensure_exists(&private_key);
+
+    // Ensure public key exists
+    let public_path = ensure_exists(&public_key);
+
     // Read public key to file
-    let contents = match read_to_string(format!("{}.pub", path.as_path().to_str().unwrap())) {
+    let contents = match read_to_string(&public_path) {
         Ok(contents) => contents,
         Err(e) => {
             println!(
                 "Failed to read public key '{}': {}",
-                path.as_path().to_str().unwrap(),
+                public_path.as_path().to_str().unwrap(),
                 e
             );
             exit(1);
@@ -75,7 +84,7 @@ pub async fn connect<'a>(
     // Run command
     let mut child = match Command::new("ssh")
         .arg("-i")
-        .arg(key)
+        .arg(private_path)
         .arg("-i")
         .arg(format!("/tmp/{}", name))
         .arg(server)
@@ -105,4 +114,18 @@ pub async fn connect<'a>(
             exit(1);
         }
     };
+}
+
+/// Ensure a file exists and also convert it to an absolute path if it was not
+fn ensure_exists(path: &str) -> std::path::PathBuf {
+    match canonicalize(path) {
+        Ok(path) => path,
+        Err(e) => {
+            match e.kind() {
+                ErrorKind::NotFound => println!("File '{}' does not exist", path),
+                _ => println!("Failed to convert relative to absolute path: {}", e),
+            };
+            exit(1);
+        }
+    }
 }

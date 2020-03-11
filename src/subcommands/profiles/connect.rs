@@ -18,6 +18,7 @@ pub async fn connect(name: String, client: &ApiClient, config: &Config) {
         client,
         profile.role.clone(),
         profile.private_key.clone(),
+        profile.public_key.clone(),
         format!("{}@{}", profile.username, profile.address),
         profile.options.clone(),
     )

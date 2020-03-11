@@ -3,18 +3,19 @@ use std::process::exit;
 
 pub fn create(
     name: String,
-    username: String,
+    username: Option<String>,
     address: String,
     role: String,
-    private_key: String,
+    private_key: Option<String>,
+    public_key: Option<String>,
     options: String,
     mut config: Config,
 ) {
     // Get default username if not provided
-    let username = if username == "" {
-        whoami::username()
-    } else {
+    let username = if let Some(username) = username {
         username
+    } else {
+        whoami::username()
     };
 
     // Ensure profile does not exist
@@ -31,6 +32,7 @@ pub fn create(
             address,
             role,
             private_key,
+            public_key,
             options,
         },
     );

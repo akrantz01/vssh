@@ -22,7 +22,8 @@ pub struct Profile {
     pub username: String,
     pub address: String,
     pub role: String,
-    pub private_key: String,
+    pub private_key: Option<String>,
+    pub public_key: Option<String>,
     pub options: String,
 }
 

@@ -2,16 +2,18 @@ extern crate dirs;
 extern crate rand;
 extern crate reqwest;
 extern crate serde;
-extern crate serde_yaml;
+extern crate serde_json;
 extern crate structopt;
 extern crate tokio;
 extern crate url;
+extern crate whoami;
 
 mod api;
 mod cli;
 mod config;
 mod errors;
 mod subcommands;
+mod util;
 
 use api::ApiClient;
 use cli::{Command, Opts, Profiles};
@@ -47,12 +49,12 @@ async fn main() {
         }
         Command::List => {
             let config = load_config(cli.config);
-            let client = initialize_api(config).await;
+            let client = initialize_api(&config).await;
             subcommands::list::list(&client).await
         }
         Command::Sign { role, key, output } => {
             let config = load_config(cli.config);
-            let client = initialize_api(config).await;
+            let client = initialize_api(&config).await;
             subcommands::sign::sign(&client, role, key, output.unwrap_or_default()).await;
         }
         Command::Connect {
@@ -62,36 +64,67 @@ async fn main() {
             options,
         } => {
             let config = load_config(cli.config);
-            let client = initialize_api(config).await;
+            let client = initialize_api(&config).await;
             subcommands::connect::connect(&client, role, key, server, options.unwrap_or_default())
                 .await;
         }
         Command::Profiles(p) => match p {
-            Profiles::Create { name, username, address, role, private_key } => {
+            Profiles::Create {
+                name,
+                username,
+                address,
+                role,
+                private_key,
+                options,
+            } => {
                 let config = load_config(cli.config);
-
-            },
+                subcommands::profiles::create::create(
+                    name,
+                    username.unwrap_or_default(),
+                    address,
+                    role,
+                    private_key,
+                    options,
+                    config,
+                );
+            }
             Profiles::Read { name } => {
                 let config = load_config(cli.config);
-
-            },
+                subcommands::profiles::read::read(name, config);
+            }
             Profiles::List => {
                 let config = load_config(cli.config);
-
-            },
-            Profiles::Update {name, username, address, role, private_key } => {
+                subcommands::profiles::list::list(config);
+            }
+            Profiles::Update {
+                name,
+                username,
+                address,
+                role,
+                private_key,
+                options,
+            } => {
                 let config = load_config(cli.config);
-
-            },
+                subcommands::profiles::update::update(
+                    name,
+                    username,
+                    address,
+                    role,
+                    private_key,
+                    options,
+                    config,
+                );
+            }
             Profiles::Delete { name } => {
                 let config = load_config(cli.config);
-
-            },
+                subcommands::profiles::delete::delete(name, config);
+            }
             Profiles::Connect { name } => {
                 let config = load_config(cli.config);
-                let client = initialize_api(config).await;
-            },
-        }
+                let client = initialize_api(&config).await;
+                subcommands::profiles::connect::connect(name, &client, &config).await;
+            }
+        },
     };
 }
 
@@ -121,7 +154,7 @@ fn load_config(file: Option<String>) -> Config {
 }
 
 /// Initialize the API client to interact with Vault
-async fn initialize_api(cfg: Config) -> ApiClient {
+async fn initialize_api(cfg: &Config) -> ApiClient {
     // Generate a client from the configuration
     let client = ApiClient::from_config(cfg);
 

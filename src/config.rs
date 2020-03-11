@@ -1,6 +1,7 @@
 use crate::errors::ConfigError;
 use reqwest::Certificate;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs::{read_to_string, File, OpenOptions};
 use std::io::prelude::*;
 use std::path::Path;
@@ -13,16 +14,16 @@ pub struct Config {
     pub path: String,
     pub custom_ca: String,
     pub tls: bool,
-    pub profiles: Vec<Profile>,
+    pub profiles: HashMap<String, Profile>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Profile {
-    pub name: String,
     pub username: String,
     pub address: String,
     pub role: String,
     pub private_key: String,
+    pub options: String,
 }
 
 impl Config {
@@ -34,7 +35,7 @@ impl Config {
             path,
             custom_ca,
             tls,
-            profiles: Vec::new(),
+            profiles: HashMap::new(),
         }
     }
 
@@ -58,21 +59,21 @@ impl Config {
         }
 
         let raw: String = read_to_string(path)?;
-        let config: Config = serde_yaml::from_str(&raw)?;
+        let config: Config = serde_json::from_str(&raw)?;
         Ok(config)
     }
 
     /// Write the currently stored configuration to the default location.
     /// The configuration is stored as YAML.
     pub fn write(&self) -> Result<(), ConfigError> {
-        let encoded = serde_yaml::to_string(self)?;
+        let encoded = serde_json::to_string(self)?;
 
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
         home.push(".config/vssh.yml");
 
         let mut file = OpenOptions::new()
-            .read(true)
             .write(true)
+            .truncate(true)
             .create(true)
             .open(home.as_path())?;
 

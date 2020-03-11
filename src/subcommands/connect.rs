@@ -1,9 +1,6 @@
 use crate::api::ApiClient;
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
 use std::fs::{canonicalize, read_to_string, remove_file, OpenOptions};
 use std::io::{ErrorKind, Write};
-use std::iter;
 use std::process::{exit, Command};
 
 pub async fn connect<'a>(
@@ -48,7 +45,7 @@ pub async fn connect<'a>(
     };
 
     // Create output file
-    let name = random_string(16);
+    let name = crate::util::random_string(16);
     let mut file = match OpenOptions::new()
         .write(true)
         .create(true)
@@ -108,12 +105,4 @@ pub async fn connect<'a>(
             exit(1);
         }
     };
-}
-
-/// Generate a random string of alphanumeric characters
-fn random_string(n: usize) -> String {
-    iter::repeat(())
-        .map(|()| thread_rng().sample(Alphanumeric))
-        .take(n)
-        .collect()
 }

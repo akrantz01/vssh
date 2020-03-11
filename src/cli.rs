@@ -38,6 +38,7 @@ pub enum Command {
         /// Path to the public part of the custom certificate authority
         custom_ca: Option<String>,
     },
+    #[structopt(alias = "ls")]
     /// List available roles
     List,
     /// Sign an SSH public key
@@ -68,8 +69,9 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub enum Profiles {
+    #[structopt(alias = "new")]
     /// Create a new profile for a server
-    /// 
+    ///
     /// Uses the current user's username if none is specified
     Create {
         /// Name for the profile
@@ -83,12 +85,16 @@ pub enum Profiles {
         role: String,
         /// Private key to use for authentication
         private_key: String,
+        /// Other options to pass to the ssh command
+        options: String,
     },
+    #[structopt(alias = "inspect")]
     /// Get the details about a profile
     Read {
         /// Name of the profile
         name: String,
     },
+    #[structopt(alias = "ls")]
     /// Get a list of all the profiles
     List,
     /// Update a profile
@@ -106,7 +112,10 @@ pub enum Profiles {
         role: Option<String>,
         #[structopt(short, long)]
         /// New private key to authenticate with
-        private_key: Option<String>
+        private_key: Option<String>,
+        #[structopt(short, long)]
+        /// New options to pass to ssh
+        options: Option<String>,
     },
     /// Delete a profile
     Delete {
@@ -117,5 +126,5 @@ pub enum Profiles {
     Connect {
         /// Name of the profile
         name: String,
-    }
+    },
 }

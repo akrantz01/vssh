@@ -68,7 +68,7 @@ Arguments:
   - `<KEY>`: Public key to be signed
 
 ## TODO:
-  - [ ] add profiles
+  - [x] add profiles
   - [x] custom CAs
   - [x] self-signed certificates
   - [x] use non-blocking version of `reqwest`

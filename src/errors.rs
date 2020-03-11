@@ -7,7 +7,7 @@ pub enum ConfigError {
     InvalidToken,
     NonExistentConfigFile,
     ReadError(io::Error),
-    YamlError(serde_yaml::Error),
+    YamlError(serde_json::Error),
     CertificateDecodeError(reqwest::Error),
 }
 
@@ -34,8 +34,8 @@ impl From<io::Error> for ConfigError {
     }
 }
 
-impl From<serde_yaml::Error> for ConfigError {
-    fn from(error: serde_yaml::Error) -> Self {
+impl From<serde_json::Error> for ConfigError {
+    fn from(error: serde_json::Error) -> Self {
         ConfigError::YamlError(error)
     }
 }

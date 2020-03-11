@@ -12,7 +12,7 @@ pub struct ApiClient {
 
 impl ApiClient {
     /// Create a HTTP client from the config file
-    pub fn from_config(config: Config) -> Self {
+    pub fn from_config(config: &Config) -> Self {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             "X-Vault-Token",

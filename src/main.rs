@@ -27,6 +27,9 @@ async fn main() {
     let cli = Opts::from_args();
 
     match cli.cmd {
+        Command::RepairConfig => {
+            subcommands::repair_config(cli.config);
+        }
         Command::Setup {
             non_interactive,
             server,
@@ -155,6 +158,10 @@ fn load_config(file: Option<String>) -> Config {
         Err(e) => match e {
             errors::ConfigError::NonExistentConfigFile => {
                 println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.json");
+                exit(1);
+            }
+            errors::ConfigError::JsonError(_) => {
+                println!("Invalid configuration file format. Run vssh repair-config to fix it");
                 exit(1);
             }
             _ => {

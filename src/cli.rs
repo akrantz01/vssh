@@ -17,6 +17,8 @@ pub struct Opts {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
+    /// Repair a user's configuration file
+    RepairConfig,
     /// Generate a configuration file
     Setup {
         #[structopt(long)]
@@ -58,7 +60,7 @@ pub enum Command {
         #[structopt(short, long)]
         /// Private key to authenticate with
         private_key: Option<String>,
-        #[structopt(short, long)]
+        #[structopt(short="k", long)]
         /// Alternative public key to use
         public_key: Option<String>,
         /// SSH server connection string
@@ -122,7 +124,7 @@ pub enum Profiles {
         #[structopt(short, long)]
         /// New private key to authenticate with
         private_key: Option<String>,
-        #[structopt(short, long)]
+        #[structopt(short="k", long)]
         /// New public key to sign
         public_key: Option<String>,
         #[structopt(short, long)]

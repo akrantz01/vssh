@@ -1,5 +1,5 @@
 use crate::config::{Config, Profile};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
@@ -32,7 +32,10 @@ pub fn repair_config(path: Option<String>) {
     } else {
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
         home.push(".config/vssh.json");
-        home.as_path().to_str().expect("Failed to convert path to string").to_string()
+        home.as_path()
+            .to_str()
+            .expect("Failed to convert path to string")
+            .to_string()
     };
 
     // Read in raw configuration file
@@ -55,32 +58,40 @@ pub fn repair_config(path: Option<String>) {
 
     // Create new config with defaults for non-existent fields
     let mut config = Config::new(
-        unrepaired_config.server.unwrap_or(String::from("https://127.0.0.1:8200")),
+        unrepaired_config
+            .server
+            .unwrap_or(String::from("https://127.0.0.1:8200")),
         unrepaired_config.token.unwrap_or_default(),
         unrepaired_config.path.unwrap_or(String::from("ssh-ca")),
         unrepaired_config.custom_ca.unwrap_or_default(),
-        unrepaired_config.tls.unwrap_or(true)
+        unrepaired_config.tls.unwrap_or(true),
     );
 
     // Attempt to repair profiles
     if let Some(profiles) = unrepaired_config.profiles {
         for (name, profile) in profiles {
-            config.profiles.insert(name, Profile {
-                username: profile.username.unwrap_or(whoami::username()),
-                address: profile.address.unwrap_or_default(),
-                role: profile.role.unwrap_or_default(),
-                private_key: profile.private_key,
-                public_key: profile.public_key,
-                options: profile.options.unwrap_or_default(),
-            });
+            config.profiles.insert(
+                name,
+                Profile {
+                    username: profile.username.unwrap_or(whoami::username()),
+                    address: profile.address.unwrap_or_default(),
+                    role: profile.role.unwrap_or_default(),
+                    private_key: profile.private_key,
+                    public_key: profile.public_key,
+                    options: profile.options.unwrap_or_default(),
+                },
+            );
         }
     }
 
     // Validate configuration file
     match config.validate() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
-            println!("Invalid configuration values, run vssh setup to reconfigure: {}", e);
+            println!(
+                "Invalid configuration values, run vssh setup to reconfigure: {}",
+                e
+            );
             exit(1);
         }
     }
@@ -95,11 +106,7 @@ pub fn repair_config(path: Option<String>) {
     };
 
     // Open output file
-    let mut file = match OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .open(&path)
-    {
+    let mut file = match OpenOptions::new().write(true).truncate(true).open(&path) {
         Ok(f) => f,
         Err(e) => {
             println!("Failed to open configuration file for writing: {}", e);
@@ -109,7 +116,7 @@ pub fn repair_config(path: Option<String>) {
 
     // Write configuration data
     match file.write_all(encoded.as_bytes()) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             println!("Failed to write configuration: {}", e);
             exit(1);

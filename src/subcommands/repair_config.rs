@@ -1,9 +1,9 @@
 use crate::config::{Config, Profile};
+use crate::util::fail;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
-use std::process::exit;
 
 #[derive(Serialize, Deserialize)]
 struct RepairableConfig {
@@ -41,19 +41,16 @@ pub fn repair_config(path: Option<String>) {
     // Read in raw configuration file
     let raw = match read_to_string(&path) {
         Ok(raw) => raw,
-        Err(e) => {
-            println!("Failed to read configuration file: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!("Failed to read configuration file: {}", e)),
     };
 
     // Attempt to parse JSON
     let unrepaired_config = match serde_json::from_str::<RepairableConfig>(&raw) {
         Ok(cfg) => cfg,
-        Err(e) => {
-            println!("Provided configuration file has unparsable JSON: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!(
+            "Provided configuration file has unparsable JSON: {}",
+            e
+        )),
     };
 
     // Create new config with defaults for non-existent fields
@@ -87,41 +84,36 @@ pub fn repair_config(path: Option<String>) {
     // Validate configuration file
     match config.validate() {
         Ok(_) => {}
-        Err(e) => {
-            println!(
-                "Invalid configuration values, run vssh setup to reconfigure: {}",
-                e
-            );
-            exit(1);
-        }
+        Err(e) => fail(&format!(
+            "Invalid configuration values, run vssh setup to reconfigure: {}",
+            e
+        )),
     }
 
     // Serialize the configuration
     let encoded = match serde_json::to_string(&config) {
         Ok(enc) => enc,
-        Err(e) => {
-            println!("Failed to encode configuration as JSON: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!("Failed to encode configuration as JSON: {}", e)),
     };
 
     // Open output file
     let mut file = match OpenOptions::new().write(true).truncate(true).open(&path) {
         Ok(f) => f,
-        Err(e) => {
-            println!("Failed to open configuration file for writing: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!(
+            "Failed to open configuration file for writing: {}",
+            e
+        )),
     };
 
     // Write configuration data
     match file.write_all(encoded.as_bytes()) {
         Ok(_) => {}
-        Err(e) => {
-            println!("Failed to write configuration: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!("Failed to write configuration: {}", e)),
     }
 
-    println!("Successfully repaired configuration at '{}'", path);
+    leg::success(
+        &format!("Successfully repaired configuration at '{}'", path),
+        None,
+        None,
+    );
 }

@@ -1,17 +1,16 @@
 use crate::api::ApiClient;
 use crate::config::Config;
 use crate::subcommands::connect::connect as connect_subcommand;
-use std::process::exit;
+use crate::util::fail;
 
 pub async fn connect(name: String, client: &ApiClient, config: &Config) {
     // Ensure profile exists
     let profile = match config.profiles.get(&name) {
         Some(profile) => profile,
-        None => {
-            println!("Profile '{}' does not exist", name);
-            exit(1);
-        }
+        None => fail(&format!("Profile '{}' does not exist", name)),
     };
+
+    leg::success("Retrieved selected profile", None, None);
 
     // Run using same subcommand
     connect_subcommand(

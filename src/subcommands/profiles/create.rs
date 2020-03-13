@@ -1,5 +1,5 @@
 use crate::config::{Config, Profile};
-use std::process::exit;
+use crate::util::fail;
 
 pub fn create(
     name: String,
@@ -20,8 +20,7 @@ pub fn create(
 
     // Ensure profile does not exist
     if config.profiles.contains_key(&name) {
-        println!("Profile '{}' already exists", name);
-        exit(1);
+        fail(&format!("Profile '{}' already exists", name));
     }
 
     // Add profile to configuration
@@ -39,10 +38,7 @@ pub fn create(
 
     // Write to file
     match config.write() {
-        Ok(_) => println!("Successfully created profile '{}'", name),
-        Err(e) => {
-            println!("Failed to write to configuration file: {}", e);
-            exit(1);
-        }
+        Ok(_) => leg::success(&format!("Created profile '{}'", name), None, None),
+        Err(e) => fail(&format!("Failed to write to configuration file: {}", e)),
     }
 }

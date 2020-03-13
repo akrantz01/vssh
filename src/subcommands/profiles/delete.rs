@@ -1,5 +1,5 @@
 use crate::config::Config;
-use std::process::exit;
+use crate::util::fail;
 
 pub fn delete(name: String, mut config: Config) {
     // Delete if exists
@@ -7,10 +7,7 @@ pub fn delete(name: String, mut config: Config) {
 
     // Commit changes
     match config.write() {
-        Ok(_) => println!("Successfully deleted profile if it existed"),
-        Err(e) => {
-            println!("Failed to write configuration file: {}", e);
-            exit(1);
-        }
+        Ok(_) => leg::success("Deleted profile if it existed", None, None),
+        Err(e) => fail(&format!("Failed to write configuration file: {}", e)),
     }
 }

@@ -1,4 +1,5 @@
 extern crate dirs;
+extern crate leg;
 extern crate rand;
 extern crate reqwest;
 extern crate serde;
@@ -18,13 +19,16 @@ mod util;
 use api::ApiClient;
 use cli::{Command, Opts, Profiles};
 use config::Config;
-use std::process::exit;
 use structopt::StructOpt;
+use util::fail;
 
 #[tokio::main]
 async fn main() {
     // Parse cli arguments and parameters
     let cli = Opts::from_args();
+
+    // Add header to command
+    leg::head("vssh", Some("🔒"), Some("0.2.0"));
 
     match cli.cmd {
         Command::RepairConfig => {
@@ -156,18 +160,9 @@ fn load_config(file: Option<String>) -> Config {
     match config {
         Ok(c) => c,
         Err(e) => match e {
-            errors::ConfigError::NonExistentConfigFile => {
-                println!("No configuration file is present. Run vssh setup or vssh --config /path/to/file.json");
-                exit(1);
-            }
-            errors::ConfigError::JsonError(_) => {
-                println!("Invalid configuration file format. Run vssh repair-config to fix it");
-                exit(1);
-            }
-            _ => {
-                println!("Failed to load configuration: {}", e);
-                exit(1);
-            }
+            errors::ConfigError::NonExistentConfigFile => fail("No configuration file is present. Run vssh setup or vssh --config /path/to/file.json"),
+            errors::ConfigError::JsonError(_) => fail("Invalid configuration file format. Run vssh repair-config to fix it"),
+            _ => fail(&format!("Failed to load configuration: {}", e))
         },
     }
 }
@@ -181,14 +176,10 @@ async fn initialize_api(cfg: &Config) -> ApiClient {
     match client.validate().await {
         Ok(status) => {
             if !status {
-                println!("Invalid token, please ensure it is correct and try again");
-                exit(1);
+                fail("Invalid token, please ensure it is correct and try again");
             }
         }
-        Err(e) => {
-            println!("Failed to validate token: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!("Failed to validate token: {}", e)),
     };
 
     client

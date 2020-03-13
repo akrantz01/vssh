@@ -1,5 +1,5 @@
 use crate::config::Config;
-use std::process::exit;
+use crate::util::fail;
 
 pub fn update(
     name: String,
@@ -13,8 +13,7 @@ pub fn update(
 ) {
     // Ensure profile exists
     if !config.profiles.contains_key(&name) {
-        println!("Profile '{}' does not exist", name);
-        exit(1);
+        fail(&format!("Profile '{}' does not exist", name));
     }
 
     // Update entry in place
@@ -52,10 +51,11 @@ pub fn update(
 
     // Write to file
     match config.write() {
-        Ok(_) => println!("Successfully updated profile '{}'", name),
-        Err(e) => {
-            println!("Failed to write to configuration file: {}", e);
-            exit(1);
-        }
+        Ok(_) => leg::success(
+            &format!("Successfully updated profile '{}'", name),
+            None,
+            None,
+        ),
+        Err(e) => fail(&format!("Failed to write to configuration file: {}", e)),
     }
 }

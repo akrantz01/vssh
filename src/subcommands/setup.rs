@@ -1,6 +1,6 @@
 use crate::config::Config;
+use crate::util::fail;
 use std::io::{self, BufRead, Write};
-use std::process::exit;
 
 pub fn interactive() {
     // Get the server address
@@ -42,46 +42,37 @@ pub fn interactive() {
     let config = Config::new(server, token, path, custom_ca, tls);
     match config.validate() {
         Ok(_) => {}
-        Err(e) => {
-            println!("Invalid configuration: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!("Invalid configuration: {}", e)),
     }
 
     // Write the configuration to disk
     match config.write() {
-        Ok(_) => println!("Successfully configured!"),
-        Err(e) => println!("Error configuring: {}", e),
+        Ok(_) => leg::success("Successfully configured", None, None),
+        Err(e) => fail(&format!("Error configuring: {}", e)),
     }
 }
 
 pub fn noninteractive(server: String, tls: bool, token: String, path: String, custom_ca: String) {
     // Ensure each parameter exists
     if server == "" {
-        println!("Option '--server' is required when running non-interactively");
-        exit(1);
+        fail("Option '--server' is required when running non-interactively");
     } else if token == "" {
-        println!("Option '--token' is required when running non-interactively");
-        exit(1);
+        fail("Option '--token' is required when running non-interactively");
     } else if path == "" {
-        println!("Option '--path' is required when running non-interactively");
-        exit(1);
+        fail("Option '--path' is required when running non-interactively");
     }
 
     // Ensure the configuration is valid
     let config = Config::new(server, token, path, custom_ca, tls);
     match config.validate() {
         Ok(_) => {}
-        Err(e) => {
-            println!("Invalid configuration: {}", e);
-            exit(1);
-        }
+        Err(e) => fail(&format!("Invalid configuration: {}", e)),
     }
 
     // Write the configuration to disk
     match config.write() {
-        Ok(_) => println!("Successfully configured"),
-        Err(e) => println!("Error configuring: {}", e),
+        Ok(_) => leg::success("Successfully configured", None, None),
+        Err(e) => fail(&format!("Error configuring: {}", e)),
     }
 }
 

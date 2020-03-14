@@ -9,6 +9,7 @@ use api::ApiClient;
 use cli::{Command, Opts, Profiles};
 use config::Config;
 use structopt::StructOpt;
+use std::path::Path;
 use util::fail;
 
 #[tokio::main]
@@ -140,7 +141,7 @@ async fn main() {
 fn load_config(file: Option<String>) -> Config {
     // Attempt to read config file
     let config = if let Some(file) = file {
-        Config::read(file)
+        Config::read(Path::new(&file))
     } else {
         Config::read_default()
     };

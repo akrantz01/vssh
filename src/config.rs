@@ -45,17 +45,12 @@ impl Config {
     pub fn read_default() -> Result<Self, ConfigError> {
         let mut home = dirs::home_dir().expect("Failed to retrieve user's home directory");
         home.push(".config/vssh.json");
-        Config::read(
-            home.as_path()
-                .to_str()
-                .expect("Failed to convert path to string")
-                .to_string(),
-        )
+        Config::read(home.as_path())
     }
 
     /// Read the specified configuration file.
-    pub fn read(path: String) -> Result<Self, ConfigError> {
-        if !Path::new(&path).exists() {
+    pub fn read(path: &Path) -> Result<Self, ConfigError> {
+        if !Path::new(path).exists() {
             return Err(ConfigError::NonExistentConfigFile);
         }
 

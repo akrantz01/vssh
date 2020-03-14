@@ -1,14 +1,3 @@
-extern crate dirs;
-extern crate leg;
-extern crate rand;
-extern crate reqwest;
-extern crate serde;
-extern crate serde_json;
-extern crate structopt;
-extern crate tokio;
-extern crate url;
-extern crate whoami;
-
 mod api;
 mod cli;
 mod config;

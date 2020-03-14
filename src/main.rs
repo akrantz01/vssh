@@ -8,8 +8,8 @@ mod util;
 use api::ApiClient;
 use cli::{Command, Opts, Profiles};
 use config::Config;
-use structopt::StructOpt;
 use std::path::Path;
+use structopt::StructOpt;
 use util::fail;
 
 #[tokio::main]

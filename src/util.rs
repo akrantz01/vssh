@@ -3,6 +3,8 @@ use rand::{thread_rng, Rng};
 use std::iter;
 use std::process::exit;
 
+pub const VERSION: &'static str = "0.3.0";
+
 /// Generate a random string of alphanumeric characters
 pub fn random_string(n: usize) -> String {
     iter::repeat(())

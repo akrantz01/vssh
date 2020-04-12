@@ -18,7 +18,7 @@ async fn main() {
     let cli = Opts::from_args();
 
     // Add header to command
-    leg::head("vssh", Some("🔒"), Some("0.2.0"));
+    leg::head("vssh", Some("🔒"), Some(util::VERSION));
 
     match cli.cmd {
         Command::RepairConfig => {

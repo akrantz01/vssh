@@ -4,7 +4,7 @@ use structopt::StructOpt;
 #[structopt(
     name = "vssh",
     author = "Alex Krantz <alex@alexkrantz.com>",
-    version = "0.1.0"
+    version = crate::util::VERSION
 )]
 /// SSH into a server requiring a certificate signed by a Hashicorp Vault instance
 pub struct Opts {

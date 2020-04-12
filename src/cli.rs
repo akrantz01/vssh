@@ -65,6 +65,9 @@ pub enum Command {
         public_key: Option<String>,
         /// SSH server connection string
         server: String,
+        #[structopt(short = "f", long)]
+        /// Connect for SFTP instead of pure SSH
+        sftp: bool,
         #[structopt(short, long)]
         /// Extra SSH client options
         options: Option<String>,
@@ -140,5 +143,8 @@ pub enum Profiles {
     Connect {
         /// Name of the profile
         name: String,
+        #[structopt(short = "f", long)]
+        /// Connect for SFTP instead of pure SSH
+        sftp: bool,
     },
 }

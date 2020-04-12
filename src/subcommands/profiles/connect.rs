@@ -3,7 +3,7 @@ use crate::config::Config;
 use crate::subcommands::connect::connect as connect_subcommand;
 use crate::util::fail;
 
-pub async fn connect(name: String, client: &ApiClient, config: &Config) {
+pub async fn connect(name: String, sftp: bool, client: &ApiClient, config: &Config) {
     // Ensure profile exists
     let profile = match config.profiles.get(&name) {
         Some(profile) => profile,
@@ -19,6 +19,7 @@ pub async fn connect(name: String, client: &ApiClient, config: &Config) {
         profile.private_key.clone(),
         profile.public_key.clone(),
         format!("{}@{}", profile.username, profile.address),
+        sftp,
         profile.options.clone(),
     )
     .await;

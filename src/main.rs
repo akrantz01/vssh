@@ -59,6 +59,7 @@ async fn main() {
             private_key,
             public_key,
             server,
+            sftp,
             options,
         } => {
             let config = load_config(cli.config);
@@ -69,6 +70,7 @@ async fn main() {
                 private_key,
                 public_key,
                 server,
+                sftp,
                 options.unwrap_or_default(),
             )
             .await;
@@ -128,10 +130,10 @@ async fn main() {
                 let config = load_config(cli.config);
                 subcommands::profiles::delete(name, config);
             }
-            Profiles::Connect { name } => {
+            Profiles::Connect { name, sftp } => {
                 let config = load_config(cli.config);
                 let client = initialize_api(&config).await;
-                subcommands::profiles::connect(name, &client, &config).await;
+                subcommands::profiles::connect(name, sftp, &client, &config).await;
             }
         },
     };

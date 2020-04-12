@@ -10,6 +10,7 @@ pub async fn connect<'a>(
     private_key: Option<String>,
     public_key: Option<String>,
     server: String,
+    sftp: bool,
     options: String,
 ) {
     // Use provided private key or default
@@ -76,8 +77,11 @@ pub async fn connect<'a>(
 
     leg::success("Wrote signed public key to temporary file", None, None);
 
+    // Check whether to run SSH or SFTP
+    let command = if sftp { "sftp" } else { "ssh" };
+
     // Run command
-    let mut child = match Command::new("ssh")
+    let mut child = match Command::new(command)
         .arg("-i")
         .arg(private_path)
         .arg("-i")

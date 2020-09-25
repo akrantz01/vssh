@@ -1127,11 +1127,11 @@ version = "0.3.0"
 dependencies = [
  "dirs",
  "leg",
- "rand",
  "reqwest",
  "serde",
  "serde_json",
  "structopt",
+ "tempfile",
  "thiserror",
  "tokio",
  "url",

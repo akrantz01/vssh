@@ -1,6 +1,6 @@
 use crate::api::ApiClient;
 use crate::util::fail;
-use std::fs::{canonicalize, read_to_string, remove_file, OpenOptions};
+use std::fs::{canonicalize, read_to_string};
 use std::io::{ErrorKind, Write};
 use std::process::Command;
 
@@ -52,12 +52,7 @@ pub async fn connect<'a>(
     leg::success("Signed public key with role", None, None);
 
     // Create output file
-    let name = crate::util::random_string(16);
-    let mut file = match OpenOptions::new()
-        .write(true)
-        .create(true)
-        .open(format!("/tmp/{}", name))
-    {
+    let mut file = match tempfile::NamedTempFile::new() {
         Ok(file) => file,
         Err(e) => {
             match e.kind() {
@@ -77,6 +72,10 @@ pub async fn connect<'a>(
 
     leg::success("Wrote signed public key to temporary file", None, None);
 
+    // Close the temporary file, but don't remove it to be passed to ssh/sftp
+    let file_path = file.into_temp_path();
+    println!("{:?}", file_path);
+
     // Check whether to run SSH or SFTP
     let command = if sftp { "sftp" } else { "ssh" };
 
@@ -85,7 +84,7 @@ pub async fn connect<'a>(
         .arg("-i")
         .arg(private_path)
         .arg("-i")
-        .arg(format!("/tmp/{}", name))
+        .arg(&file_path)
         .arg(server)
         .args(options.split_whitespace().collect::<Vec<&str>>())
         .spawn()
@@ -100,7 +99,7 @@ pub async fn connect<'a>(
     child.wait().expect("Failed to wait on child");
 
     // Remove signed certificate
-    match remove_file(format!("/tmp/{}", name)) {
+    match file_path.close() {
         Ok(_) => leg::success("Cleaned up signed public key", None, None),
         Err(e) => {
             match e.kind() {

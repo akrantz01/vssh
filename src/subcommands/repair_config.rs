@@ -57,9 +57,9 @@ pub fn repair_config(path: Option<String>) {
     let mut config = Config::new(
         unrepaired_config
             .server
-            .unwrap_or(String::from("https://127.0.0.1:8200")),
+            .unwrap_or_else(|| String::from("https://127.0.0.1:8200")),
         unrepaired_config.token.unwrap_or_default(),
-        unrepaired_config.path.unwrap_or(String::from("ssh-ca")),
+        unrepaired_config.path.unwrap_or_else(|| String::from("ssh-ca")),
         unrepaired_config.custom_ca.unwrap_or_default(),
         unrepaired_config.tls.unwrap_or(true),
     );
@@ -70,7 +70,7 @@ pub fn repair_config(path: Option<String>) {
             config.profiles.insert(
                 name,
                 Profile {
-                    username: profile.username.unwrap_or(whoami::username()),
+                    username: profile.username.unwrap_or_else(whoami::username),
                     address: profile.address.unwrap_or_default(),
                     role: profile.role.unwrap_or_default(),
                     private_key: profile.private_key,

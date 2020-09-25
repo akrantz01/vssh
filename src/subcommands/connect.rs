@@ -74,7 +74,6 @@ pub async fn connect<'a>(
 
     // Close the temporary file, but don't remove it to be passed to ssh/sftp
     let file_path = file.into_temp_path();
-    println!("{:?}", file_path);
 
     // Check whether to run SSH or SFTP
     let command = if sftp { "sftp" } else { "ssh" };
